@@ -1,0 +1,307 @@
+﻿ULE笔记
+
+
+
+
+
+文件服务器
+nfs网络文件系统
+配置文件:/etc/exports
+端口:2049
+启动服务:service nfs restart
+        service  rpcbind restart
+
+服务端
+[root@robin ~]# vim /etc/exports
+/nfs    172.16.110.3(rw,sync)   一台服务器
+/nfs    172.16.110.3(rw,sync) 172.16.110.4/32(ro) 多台
+/nfs	172.16.110.0/24(rw,sync)  网段
+/nfs	*(rw,sync)
+[root@robin nfs]# chmod 757 /nfs/
+
+客户端
+[root@data1 ~]# showmount -e 172.16.110.1
+/nfs 172.16.110.3
+[root@data1 ~]# mount -t nfs 172.16.110.1:/nfs /mnt
+
+不修改权限,客户端可以写入
+/nfs    172.16.110.3(rw,sync,no_root_squash)
+
+作业:
+1.NAS  raid+lvm+nfs
+2.3自动挂载方式实现nas自动挂载
+
+samba
+安装包:samba-3.6.9-151.el6.x86_64.rpm 
+配置文件:/etc/samba/smb.conf 
+启动服务:service smb restart
+
+匿名配置:
+vim /etc/samba/smb.conf
+security = share
+
+[test]
+        comment = test
+        path = /tmp/test
+        writable = yes
+        public = yes
+        browseable = no
+[root@robin 桌面]# service smb restart
+
+客户端:
+windows
+地址栏   \\172.16.110.1
+linux
+[root@robin ~]# smbclient -L //172.16.110.1   查询
+[root@robin ~]# smbclient //172.16.110.1/test    
+挂载使用
+[root@data1 ~]# mount -t cifs //172.16.110.1/test /mnt/
+
+用户验证方式
+vim /etc/samba/smb.conf
+security = user
+
+[kkk]
+        comment = king dir
+        path = /tmp/kkk
+        writable = yes
+        valid user = king @uplooking
+
+[root@robin tmp]# useradd king
+[root@robin tmp]# smbpasswd -a king
+
+[root@robin tmp]# useradd -G uplooking jerry
+[root@robin tmp]# useradd -G uplooking tom
+[root@robin tmp]# smbpasswd -a tom
+[root@robin tmp]# smbpasswd -a jerry
+
+客户端:
+[root@data1 ~]# smbclient -L //172.16.110.1
+[root@data1 ~]# smbclient -U king%123 //172.16.110.1/kkk
+[root@data1 ~]# mount -o username=king,password=123 //172.16.110.1/kkk /mnt/
+
+[kkk]
+        comment = king dir
+        path = /tmp/kkk
+        writable = no
+        valid user = king @uplooking
+        write list = king
+
+[kkk]
+        comment = king dir
+        path = /tmp/kkk
+        writable = yes
+        valid user = king @uplooking
+        read list = king
+
+user模式下实现匿名访问
+security = user
+map to guest = bad user
+[test]
+        comment = test
+        path = /tmp/test
+        writable = yes
+        public = yes
+        guest ok = yes
+
+练习:
+1.NAS 
+2.自动挂载(user)
+smb     -fstype=cifs,rw,sync,username=king,password=123  ://172.16.110.1/kkk
+3.
+[boss]
+        comment = boss
+        path = /tmp/boss
+        writable = no
+        valid user = boss robin zorro king
+        write list = boss
+[cw]
+        comment = cw
+        path = /tmp/boss/cw
+        writable = no
+        valid user = boss robin tom jerry
+        write list = robin
+
+[yw]
+        comment = yw
+        path = /tmp/boss/yw
+        writable = no
+        valid user = boss zorro jack rose
+        write list = zorro
+
+[kf]
+        comment = kf
+        path = /tmp/boss/kf
+        writable = no
+        valid user = boss  king lili luci
+        write list = king
+
+[pub]
+        comment = public
+        path = /tmp/pub
+        writable = yes
+        invalid user = boss
+        public = yes
+
+
+查询所有的smb帐号
+[root@robin tmp]# pdbedit -L
+删除
+[root@robin tmp]# smbpasswd -x bossl
+
+ftp
+安装包:vsftpd-2.2.2-11.el6.x86_64.rpm  服务端
+       lftp-4.0.9-1.el6.x86_64.rpm  客户端
+配置文件:/etc/vsftpd/vsftpd.conf
+端口:20 21
+服务数据目录:/var/ftp
+启动服务:service vsftpd restart
+
+客户端:
+[root@robin ~]# lftp 172.16.110.1
+lftp 172.16.110.1:~> get biji.txt
+指定目录下载:
+lftp 172.16.110.1:~> lcd /tmp/
+lftp 172.16.110.1:/> get biji.txt
+或者
+lftp 172.16.110.1:/> get biji.txt -o /home/
+或者
+[root@robin ~]# wget ftp://172.16.110.1/biji.txt
+下载目录
+lftp 172.16.110.1:/> mirror software/
+上传文件
+lftp 172.16.110.1:/> put /root/install.log
+上传目录
+lftp 172.16.110.1:/pub> mirror -R /boot/
+
+
+匿名模式
+上传文件
+anon_upload_enable=YES
+anon_mkdir_write_enable=YES
+删除
+anon_other_write_enable=YES
+上传文件下载
+anon_umask=022
+限速
+anon_max_rate=20000
+修改匿名帐号登录位置
+方法:1.修改ftp用户家目录
+ftp:x:14:50:FTP User:/tmp/ftp:/sbin/nologin
+方法2:
+[root@robin ftp]# vim /etc/vsftpd/vsftpd.conf
+anon_root=/tmp/ftp
+
+工作原理
+主动模式
+C		S
+1024+n--------->21
+      1024+m--->21
+1024+m<---------20
+
+端口模式
+C		S
+1024+n--------->21
+      <---------1024+m
+1024+x--------->1024+m
+
+客户端传输模式
+[root@robin tmp]# vim /etc/lftp.conf 
+set ftp:passive-mode off
+
+服务器关闭被动模式
+[root@data1 ftp]# vim /etc/vsftpd/vsftpd.conf 
+pasv_enable=no
+
+用户验证登录(基于系统用户)
+[root@robin tmp]# useradd robin
+[root@robin tmp]# passwd robin
+[root@robin tmp]# lftp -u robin,123 172.16.110.1
+
+ftp用户将shell设置为:/sbin/nologin
+
+限制本地用户切换目录
+方法1:
+[root@robin tmp]# vim /etc/vsftpd/vsftpd.conf
+chroot_local_user=YES  限制所有用户切换目录
+
+设置本地用户登录目录
+local_root=/tmp/manager
+限制本地用户速度
+local_max_rate=200000
+
+限制用户使用ftp
+方法1:
+将不允许登录的用户写入该文件:/etc/vsftpd/ftpusers 
+
+方法2:黑白名单
+userlist_enable=YES
+userlist_deny=YES
+名单文件:/etc/vsftpd/user_list  黑名单
+
+userlist_enable=YES
+userlist_deny=NO
+名单文件:/etc/vsftpd/user_list  白名单
+--------
+虚拟用户
+1.建立用户数据库
+# cat /root/ftpuser.txt
+test111 # 账户
+pass111 # 密码
+test222
+pass222
+
+2.转换文本文件为数据库文件
+[root@robin ~]# rpm -qf $(which db_load)
+db4-utils-4.7.25-17.el6.x86_64
+
+[root@robin ~]# db_load -T -t hash -f /root/ftpuser.txt /etc/vsftpd/vsftpd_login.db
+
+3.更改验证方式
+[root@robin ~]# mv /etc/pam.d/vsftpd /etc/pam.d/vsftpd.bak
+[root@robin ~]# vim /etc/pam.d/vsftpd
+auth required /lib64/security/pam_userdb.so db=/etc/vsftpd/vsftpd_login
+account required /lib64/security/pam_userdb.so db=/etc/vsftpd/vsftpd_login
+
+4.建立系统帐号做为虚拟帐号的映射帐号
+[root@robin ~]# useradd -d /home/vsftp virtual
+[root@robin ~]# chmod 755 /home/vsftp
+
+5.修改配置文件启用虚拟用户
+[root@robin ~]# vim /etc/vsftpd/vsftpd.conf
+guest_enable=YES # 开启虚拟用户功能
+guest_username=virtual # 指定虚拟用户使用的系统用户
+
+权限:
+virtual_use_local_privs=YES 该选项为YES虚拟帐号权限和本地用户相同
+virtual_use_local_privs=NO 该选项为NO虚拟帐号权限和匿名用户相同
+
+给每个用户设置权限
+[root@robin ~]# vim /etc/vsftpd/vsftpd.conf 
+virtual_use_local_privs=YES
+user_config_dir=/etc/vsftpd/vsftp_user_conf
+
+[root@robin ~]# mkdir /etc/vsftpd/vsftp_user_conf
+
+[root@robin ~]# touch /etc/vsftpd/vsftp_user_conf/test111
+[root@robin ~]# cat /etc/vsftpd/vsftp_user_conf/test111 
+write_enable=NO
+local_max_rate=20000000
+
+[root@robin ~]# touch /etc/vsftpd/vsftp_user_conf/test222
+[root@robin ~]# cat /etc/vsftpd/vsftp_user_conf/test222
+write_enable=YES
+local_max_rate=1000000
+
+
+
+
+
+
+
+
+
+
+
+
+

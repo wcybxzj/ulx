@@ -1,0 +1,11 @@
+node default { 
+	file { "/tmp/puppet1.txt": 
+		  content => "Hello puppet!"; 
+		  }
+}
+
+node /agent[0-9]+\.puppet\.com/ {
+        include test1
+        include httpd
+        #include nginx
+}

@@ -1,0 +1,37 @@
+路由的LB 效果没实现
+client:
+eth0:192.168.122.101
+
+gw:
+eth0:192.168.122.110
+eth1:1.1.1.200
+eth2:2.2.2.200
+
+router1:
+eth1:1.1.1.2
+eth2:3.3.3.4
+
+router2:
+eth1:2.2.2.2
+eth2:3.3.3.5
+====================================================
+
+client:
+ip route del default
+ip route add 0/0 via 192.168.122.110
+ip r
+
+gw:
+开启ip_forward
+ip route del default
+ip route add default nexthop via 1.1.1.200 dev eth1 nexthop via 2.2.2.200 dev eth2
+
+router1:
+开启ip_forward
+ip route del default
+ip route add 0/0 via 1.1.1.200
+
+router2:
+开启ip_forward
+ip route del default
+ip route add 0/0 via 2.2.2.200

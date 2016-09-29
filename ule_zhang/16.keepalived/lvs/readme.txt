@@ -1,0 +1,1 @@
+keepalived对lvs进行高可用

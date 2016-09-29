@@ -1,0 +1,48 @@
+#!/bin/bash
+
+#mount
+mount|grep /net
+echo $?
+if [[ $? -eq 0 ]]; then
+	echo "umount /net"
+	umount /net
+fi
+mount -t iso9660 -o loop /root/rhel.iso /net
+if [[ $? -eq 0 ]]; then
+	echo "mount ok"
+else
+	echo "mount fail"
+fi
+
+#yum
+echo "[ybx]" > /etc/yum.repos.d/ybx.repo
+echo "name=ybx123" >> /etc/yum.repos.d/ybx.repo
+echo "baseurl=file:///net" >> /etc/yum.repos.d/ybx.repo
+echo "enabled=1" >> /etc/yum.repos.d/ybx.repo
+echo "gpgcheck=0" >> /etc/yum.repos.d/ybx.repo
+yum clean all
+yum makecache
+
+#check && installed httpd
+rpm -qa|grep httpd
+if [[ $? -eq 0 ]]; then
+	echo "httpd installed"
+else
+	rpm -ivh httpd
+fi
+
+#create httpd web page
+echo "123" > /var/www/index.html
+
+#/etc/hosts
+localip=`ifconfig eth0|grep "inet addr:" | sed -rn 's/\s+inet addr:([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}).*/\1/p'`
+sed -i \$a"$localip www.baidu.com" /etc/hosts
+
+#start service httpd
+service httpd restart
+
+#access httpd server
+elinks http://127.0.0.1
+
+#disables firefox
+

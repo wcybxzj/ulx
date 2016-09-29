@@ -1,0 +1,5 @@
+目标:ext2没日志应该比ext4快
+kvm:ext2比ext4快1倍
+vmware:ext4比ext2快1倍
+真机:没测
+

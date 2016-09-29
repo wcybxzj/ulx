@@ -1,0 +1,189 @@
+
+TigerVNC Viewer for X version 1.1.0 - built Nov 26 2012 10:13:33
+Copyright (C) 1999-2011 TigerVNC Team and many others (see README.txt)
+See http://www.tigervnc.org for information on TigerVNC.
+
+Wed May 18 09:33:14 2016
+ main:        CleanupSignalHandler called
+
+TigerVNC Viewer for X version 1.1.0 - built Nov 26 2012 10:13:33
+Copyright (C) 1999-2011 TigerVNC Team and many others (see README.txt)
+See http://www.tigervnc.org for information on TigerVNC.
+
+Wed May 18 09:33:30 2016
+ main:        CleanupSignalHandler called
+
+TigerVNC Viewer for X version 1.1.0 - built Nov 26 2012 10:13:33
+Copyright (C) 1999-2011 TigerVNC Team and many others (see README.txt)
+See http://www.tigervnc.org for information on TigerVNC.
+
+Wed May 18 09:33:53 2016
+ CConn:       connected to host 172.16.30.245 port 5900
+ CConnection: Server supports RFB protocol version 3.8
+ CConnection: Using RFB protocol version 3.8
+
+Wed May 18 09:33:54 2016
+ TXImage:     Using default colormap and visual, TrueColor, depth 24.
+ CConn:       Using pixel format depth 24 (32bpp) little-endian rgb888
+ CConn:       Using Tight encoding
+
+Wed May 18 09:35:01 2016
+ CConn:       Throughput 14768 kbit/s - changing to quality 6 
+ CConn:       Using Tight encoding
+
+Wed May 18 09:37:49 2016
+ CConn:       Throughput 16017 kbit/s - changing to quality 8 
+
+Wed May 18 09:37:50 2016
+ CConn:       Using Tight encoding
+
+Wed May 18 09:38:00 2016
+ CConn:       Throughput 15728 kbit/s - changing to quality 6 
+ CConn:       Using Tight encoding
+
+Wed May 18 09:38:03 2016
+ CConn:       Throughput 16015 kbit/s - changing to quality 8 
+ CConn:       Using Tight encoding
+ CConn:       Throughput 15855 kbit/s - changing to quality 6 
+ CConn:       Using Tight encoding
+
+Wed May 18 09:38:23 2016
+ CConn:       Throughput 16001 kbit/s - changing to quality 8 
+ CConn:       Using Tight encoding
+
+Wed May 18 09:38:24 2016
+ CConn:       Throughput 15943 kbit/s - changing to quality 6 
+ CConn:       Using Tight encoding
+ CConn:       Throughput 16171 kbit/s - changing to quality 8 
+ CConn:       Using Tight encoding
+
+Wed May 18 09:39:21 2016
+ CConn:       Throughput 15170 kbit/s - changing to quality 6 
+ CConn:       Using Tight encoding
+
+Wed May 18 09:42:55 2016
+ CConn:       Throughput 16014 kbit/s - changing to quality 8 
+ CConn:       Using Tight encoding
+
+Wed May 18 09:42:56 2016
+ CConn:       Throughput 15249 kbit/s - changing to quality 6 
+ CConn:       Using Tight encoding
+
+Wed May 18 09:43:35 2016
+ CConn:       Throughput 16321 kbit/s - changing to quality 8 
+ CConn:       Using Tight encoding
+
+Wed May 18 09:43:40 2016
+ CConn:       Throughput 15844 kbit/s - changing to quality 6 
+ CConn:       Using Tight encoding
+
+Wed May 18 09:43:43 2016
+ CConn:       Throughput 16007 kbit/s - changing to quality 8 
+
+Wed May 18 09:43:44 2016
+ CConn:       Using Tight encoding
+
+Wed May 18 09:43:47 2016
+ CConn:       Throughput 15915 kbit/s - changing to quality 6 
+ CConn:       Using Tight encoding
+
+Wed May 18 09:43:51 2016
+ CConn:       Throughput 16011 kbit/s - changing to quality 8 
+ CConn:       Using Tight encoding
+
+TigerVNC Viewer for X version 1.1.0 - built Nov 26 2012 10:13:33
+Copyright (C) 1999-2011 TigerVNC Team and many others (see README.txt)
+See http://www.tigervnc.org for information on TigerVNC.
+
+Wed May 18 09:57:43 2016
+ CConn:       connected to host 172.16.30.245 port 5900
+ CConnection: Server supports RFB protocol version 3.8
+ CConnection: Using RFB protocol version 3.8
+ TXImage:     Using default colormap and visual, TrueColor, depth 24.
+ CConn:       Using pixel format depth 24 (32bpp) little-endian rgb888
+ CConn:       Using Tight encoding
+
+Wed May 18 10:31:10 2016
+ CConn:       Throughput 15850 kbit/s - changing to quality 6 
+
+Wed May 18 10:31:11 2016
+ CConn:       Using Tight encoding
+
+Wed May 18 10:31:32 2016
+ CConn:       Throughput 16001 kbit/s - changing to quality 8 
+ CConn:       Using Tight encoding
+
+Wed May 18 10:31:54 2016
+ CConn:       Throughput 15876 kbit/s - changing to quality 6 
+ CConn:       Using Tight encoding
+ CConn:       Throughput 16518 kbit/s - changing to quality 8 
+ CConn:       Using Tight encoding
+
+Wed May 18 10:32:00 2016
+ CConn:       Throughput 15713 kbit/s - changing to quality 6 
+ CConn:       Using Tight encoding
+
+Wed May 18 10:32:01 2016
+ CConn:       Throughput 16026 kbit/s - changing to quality 8 
+ CConn:       Using Tight encoding
+
+Wed May 18 10:32:42 2016
+ CConn:       Throughput 11756 kbit/s - changing to quality 6 
+ CConn:       Using Tight encoding
+
+Wed May 18 11:38:02 2016
+ CConn:       Throughput 16001 kbit/s - changing to quality 8 
+ CConn:       Using Tight encoding
+
+Wed May 18 11:38:04 2016
+ CConn:       Throughput 15788 kbit/s - changing to quality 6 
+ CConn:       Using Tight encoding
+
+Wed May 18 11:38:05 2016
+ CConn:       Throughput 16275 kbit/s - changing to quality 8 
+ CConn:       Using Tight encoding
+
+Wed May 18 11:38:19 2016
+ CConn:       Throughput 15887 kbit/s - changing to quality 6 
+ CConn:       Using Tight encoding
+
+Wed May 18 11:38:22 2016
+ CConn:       Throughput 16001 kbit/s - changing to quality 8 
+ CConn:       Using Tight encoding
+
+Wed May 18 11:38:25 2016
+ CConn:       Throughput 15656 kbit/s - changing to quality 6 
+ CConn:       Using Tight encoding
+
+Wed May 18 11:40:21 2016
+ CConn:       Throughput 16333 kbit/s - changing to quality 8 
+ CConn:       Using Tight encoding
+
+Wed May 18 11:43:06 2016
+ CConn:       Throughput 15608 kbit/s - changing to quality 6 
+ CConn:       Using Tight encoding
+
+Wed May 18 11:43:18 2016
+ CConn:       Throughput 16004 kbit/s - changing to quality 8 
+ CConn:       Using Tight encoding
+
+Wed May 18 11:43:19 2016
+ CConn:       Throughput 15925 kbit/s - changing to quality 6 
+ CConn:       Using Tight encoding
+ CConn:       Throughput 16040 kbit/s - changing to quality 8 
+ CConn:       Using Tight encoding
+
+Wed May 18 11:43:57 2016
+ CConn:       Throughput 15811 kbit/s - changing to quality 6 
+ CConn:       Using Tight encoding
+
+Wed May 18 11:43:59 2016
+ CConn:       Throughput 16008 kbit/s - changing to quality 8 
+ CConn:       Using Tight encoding
+
+Wed May 18 11:44:01 2016
+ CConn:       Throughput 14513 kbit/s - changing to quality 6 
+ CConn:       Using Tight encoding
+
+Wed May 18 13:23:57 2016
+ main:        read: No route to host (113)

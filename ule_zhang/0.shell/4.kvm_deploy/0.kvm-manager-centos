@@ -1,0 +1,217 @@
+#!/bin/bash
+#kvm manager
+#2016/03/29 by tianyun
+images_dir=/var/lib/libvirt/images
+xml_dir=/etc/libvirt/qemu
+red_col="\e[1;31m"
+blue_col="\e[1;34m"
+reset_col="\e[0m"
+base_img=centos6u6_base.qcow2
+windows_base_img=win7_base.qcow2
+
+menu() {
+cat <<EOF
++------------------------------------------------+
+|						 |
+|		======================		 |
+|		  虚拟机基本管理centos		 |
+|		            by tianyun		 |
+|		======================		 |
+|		1. 安装虚拟机			 |		
+|		2. 重置所有Linux虚拟机		 |
+|		3. 重置Windows虚拟机		 |
+|		4. 重置Windows虚拟机  [完全]	 |
+|		5. 重置指定的虚拟机		 |
+|		q. 退出管理程序			 | 
+|						 |
++------------------------------------------------+	
+EOF
+}
+
+menu
+
+while :
+do
+
+read -p "请选择相应的操作[1-4], 显示菜单[m]: " choice
+
+case $choice in 
+1)
+	read -p "确认开始安装虚拟机吗?[y/n]: " action_install
+	if [ ! "${action_install}" = "y" ];then
+		echo "输入错误!"
+        	exit 1
+	fi
+	
+	if [ ! -f /etc/yum.repos.d/centos.repo ];then
+		rm -rf /etc/yum.repos.d/*
+		wget -O /etc/yum.repos.d/centos.repo ftp://192.168.91.11/centos.repo &>/dev/null
+	fi
+
+	service libvirtd status &>/dev/null
+	if [ $? -ne 0 ];then
+		echo "开始安装KVM......"
+		yum -y groupinstall "virtual*"
+		sleep 5
+		service libvirtd start
+		chkconfig libvirtd on
+	fi
+
+	if [ ! -f ${images_dir}/$base_img ];then
+		echo "正在下载镜像文件，请稍候......"
+		wget -O ${images_dir}/$base_img ftp://192.168.91.11/vms/$base_img
+	fi
+
+	if [ -d ${xml_dir} ];then
+		rm -rf  ${xml_dir}/centos*.xml
+		wget -P ${xml_dir}  ftp://192.168.91.11/vms/xml/centos/*.xml
+	else
+		mkdir ${xml_dir}
+		wget -P ${xml_dir}  ftp://192.168.91.11/vms/xml/centos/*.xml
+	fi
+
+	for i in {1..10}
+	do
+        	qemu-img create -f qcow2 -b ${images_dir}/${base_img} ${images_dir}/centos-${i}.qcow2 &>/dev/null
+		virsh define ${xml_dir}/centos-${i}.xml &>/dev/null
+		echo "已安装虚拟机 centos-${i}......"
+	done
+
+	wget -O /root/Desktop/virt-manager.desktop ftp://192.168.91.11/virt-manager.desktop &>/dev/null
+	wget -O /root/Desktop/Readme.txt ftp://192.168.91.11/centos-readme.txt &>/dev/null
+	wget -O /usr/local/sbin/kvm-manager ftp://192.168.91.11/kvm-manager-centos &>/dev/null
+	chmod a+x /root/Desktop/virt-manager.desktop
+	chmod a+x /usr/local/sbin/kvm-manager
+	wget -O /root/桌面/virt-manager.desktop ftp://192.168.91.11/virt-manager.desktop &>/dev/null
+	wget -O /root/桌面/Readme.txt ftp://192.168.91.11/centos-readme.txt &>/dev/null
+	chmod a+x /root/桌面/virt-manager.desktop
+	chmod a+x /usr/local/sbin/kvm-manager
+	echo "-----------------------------------------------------------"
+	echo "虚拟机安装完成，请查看桌面上的Readme文件..."
+	echo "-----------------------------------------------------------"
+	;;
+2)
+	read -p "确认重置所有的Linux虚拟机吗?[y/n]: " rebuild_linux
+	if [ ! "${rebuild_linux}" = "y" ];then
+		echo "输入错误!"
+        	exit 1
+	fi
+
+	if [ ! -f ${images_dir}/${base_img} ];then
+		echo "正在下载镜像文件，请稍候......"
+		wget -O ${images_dir}/${base_img} ftp://192.168.91.11/vms/${base_img}
+	fi
+
+	rm -rf ${images_dir}/*.img
+
+	for i in {1..10}
+	do
+		vm_name=centos-${i}
+		virsh destroy ${vm_name} &>/dev/null
+		virsh undefine ${vm_name} &>/dev/null
+		rm -rf ${images_dir}/${vm_name}.qcow2
+        	qemu-img create -f qcow2 -b ${images_dir}/${base_img} ${images_dir}/${vm_name}.qcow2 &>/dev/null
+		wget -q ftp://192.168.91.11/vms/xml/centos/${vm_name}.xml -O ${xml_dir}/${vm_name}.xml
+        	virsh define ${xml_dir}/${vm_name}.xml &>/dev/null
+		echo "虚拟机${vm_name}重置完成..."
+	done
+	;;
+3)
+	read -p "确认重置 windows 虚拟机吗?[y/n]: " rebuild_windows
+	if [ ! "${rebuild_windows}" = "y" ];then
+		echo "输入错误!"
+        	exit 1
+	fi
+
+	if [ ! -f ${images_dir}/${windows_base_img} ];then
+		echo "正在下载镜像文件，请稍候......"
+		wget -O ${images_dir}/${windows_base_img} ftp://192.168.91.11/vms/${windows_base_img}
+	fi
+
+	virsh destroy win7 &>/dev/null
+	virsh undefine win7 &>/dev/null
+	rm -rf ${images_dir}/$win7.qcow2 &>/dev/null
+	qemu-img create -f qcow2 -b ${images_dir}/${windows_base_img} ${images_dir}/win7.qcow2 &>/dev/null
+	wget -q ftp://192.168.91.11/vms/xml/win7.xml -O ${xml_dir}/win7.xml
+	virsh define ${xml_dir}/win7.xml &>/dev/null
+	echo "虚拟机 windows 重置完成..."
+	;;
+4)
+	read -p "确认完全重置 windows 虚拟机吗?[y/n]: " rebuild_windows
+	if [ ! "${rebuild_windows}" = "y" ];then
+		echo "输入错误!"
+        	exit 1
+	fi
+
+	rm -rf ${images_dir}/${windows_base_img}/win*
+	wget -O ${images_dir}/${windows_base_img} ftp://192.168.91.11/vms/${windows_base_img}
+
+	virsh destroy win7 &>/dev/null
+	virsh undefine win7 &>/dev/null
+	qemu-img create -f qcow2 -b ${images_dir}/${windows_base_img} ${images_dir}/win7.qcow2 &>/dev/null
+	wget -q ftp://192.168.91.11/vms/xml/win7.xml -O ${xml_dir}/win7.xml
+	virsh define ${xml_dir}/win7.xml &>/dev/null
+	echo "虚拟机 windows 重置完成..."
+	;;
+5)
+hint_mes() {
+cat <<EOF
++------------------------------------------------+
+|                                                |
+|               centos-1.  重置centos-1	         |
+|               centos-2.  重置centos-2	         |
+|               centos-3.  重置centos-3	         |
+|               centos-4.  重置centos-4	         |
+|               centos-5.  重置centos-5	         |
+|               centos-6.  重置centos-6	         |
+|               centos-7.  重置centos-7	         |
+|               centos-8.  重置centos-8	         |
+|               centos-9.  重置centos-9	         |
+|               centos-10. 重置centos-10         |
+|               q.   退出管理程序                | 
+|                                                |
++------------------------------------------------+      
+EOF
+}
+
+	clear
+	hint_mes
+	read -p "请选择重置的Linux [如centos-3]: " rebuild_vm
+	while :
+	do
+		if [ "${rebuild_vm}" = "q" ];then
+			exit
+		fi
+
+		if [[  "${rebuild_vm}" =~ ^vm-[0-9]+$ ]];then
+			read -p "确认重置虚拟机${vm_name}吗?[y/n]: " action2
+			if [  "$action2" = "y" ];then
+				virsh destroy ${rebuild_vm} &>/dev/null
+				virsh undefine ${rebuild_vm} &>/dev/null
+				rm -rf ${images_dir}/${rebuild_vm}.qcow2
+				qemu-img create -f qcow2 -b ${images_dir}/${base_img} ${images_dir}/${rebuild_vm} &>/dev/null
+				wget -q ftp://192.168.91.11/vms/xml/${virt_host}.xml -O ${xml_dir}/${virt_host}.xml
+				virsh define ${xml_dir}/${virt_host}.xml &>/dev/null
+				echo "已重置虚拟机${virt_host}..."
+			fi
+		else	
+			read -p "输入错误，请重新选择[如centos-3]: " rebuild_vm
+		fi
+	done
+	;;
+m)
+	clear
+	menu
+	;;
+q)
+	exit
+	;;
+'')
+	;;
+*)
+	echo "输入错误！"
+	read -p "请选择相应的操作[1-4]: " choice
+	
+esac
+
+done

@@ -1,0 +1,11 @@
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4 www.youku.com www.aiqiyi.com
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6 
+172.16.80.1 aa
+192.168.91.4 www.kkk.com
+192.168.91.3 www.blog.com
+192.168.91.3 www.126.com
+192.168.91.3 mail.robin.com
+192.168.91.3 zorro.upup.com
+192.168.91.3 nagios.upup.com
+192.168.91.3 robin.upup.com
+192.168.91.3 www.nagios.com

@@ -1,0 +1,342 @@
+vmware做宿主,提供centos6.6 rhel6.4
+kvm做的虚拟机
+
+网络:
+创建host-only fifty 隔离网络类型,其实用NAT也可以就是怕dhcp带来ip冲突
+50.0.0.0/8 不使用dhcp
+
+vmware宿主:50.0.0.1  centos6.6
+pxe-sever:50.0.0.5 centos6.6
+client1:   
+
+===============================================================
+pxe-server:
+yum -y install dhcp tftp-server vsftpd syslinux bind bind-chroot bind-utils
+===============================================================
+pxe-server:
+iptables -F
+service iptables stop
+DNS:
+vim /etc/named.conf:
+options {
+	directory 	"/var/named";
+};
+zone "uplooking.com" IN {
+	type master;
+	file "uplooking.com";
+};
+zone "0.0.50.in-addr.arpa" IN{
+        type master;
+        file "0.0.50";
+};
+
+cd /var/named/chroot/var/named/
+vim uplooking.com:
+$TTL 1D
+@       IN SOA  @ rname.invalid. (
+                                        0       ; serial
+                                        1D      ; refresh
+                                        1H      ; retry
+                                        1W      ; expire
+                                        3H )    ; minimum
+        NS      @
+        A       127.0.0.1
+client1  A      50.0.0.1
+
+vim /tmp/dhcp.sh:
+#!/bin/bash
+for((i=2;i<=254;i++))
+do
+echo "client$i A 50.0.0.$i" >> /var/named/chroot/var/named/uplooking.com
+done
+
+sh /tmp/dhcp.sh
+
+cd /var/named/chroot/var/named
+cp /var/named/named.loopback 0.0.50
+chown named.named 0.0.50
+
+vim 0.0.50:
+$TTL 1D
+@       IN SOA  @ rname.invalid. (
+                                        0       ; serial
+                                        1D      ; refresh
+                                        1H      ; retry
+                                        1W      ; expire
+                                        3H )    ; minimum
+        NS      @
+        A       127.0.0.1
+        PTR     localhost.
+1       PTR     client1.uplooking.com
+
+
+vim /tmp/dhcp2.sh:
+#!/bin/bash
+for((i=2;i<=254;i++))
+do
+echo "$i  PTR  client$i.uplooking.com." >> /var/named/chroot/var/named/0.0.50
+done
+
+sh /tmp/dhcp2.sh
+
+service named start
+chkconfig named on
+
+vim /etc/resolv.conf:
+nameserver 127.0.0.1
+
+测试正反解析
+host 50.0.0.10
+10.0.0.50.in-addr.arpa domain name pointer
+client10.uplooking.com.0.0.50.in-addr.arpa.
+host client50.uplooking.com
+client50.uplooking.com has address 50.0.0.50
+===============================================================
+pxe-server:
+DHCP:
+查看配置模板
+cat /etc/dhcp/dhcpd.conf 
+#
+# DHCP Server Configuration file.
+#   see /usr/share/doc/dhcp*/dhcpd.conf.example
+#   see dhcpd.conf(5) man page
+
+ceontos6:
+cp /usr/share/doc/dhcp*/dhcpd.conf.sample /etc/dhcp/dhcpd.conf
+
+centos7:
+cp /usr/share/doc/dhcp*/dhcpd.conf.example /etc/dhcp/dhcpd.conf
+
+vim  /etc/dhcp/dhcpd.conf:
+#option domain-name-servers 50.0.0.5; DNS
+#option routers 50.0.0.6; 默认路由
+#max-lease-time 7200;  dhcp续租时间
+#dynamic-bootp 让dhcp支持网络引导
+#next-server tftp的ip 可以单独做1台
+#filename "pxelinux.0"; PXE引导文件在linux镜像中
+subnet 50.0.0.0 netmask 255.0.0.0 {
+  range dynamic-bootp 50.0.0.10 50.0.0.254 ;
+  option domain-name-servers 50.0.0.5;
+  option routers 50.0.0.5;
+  max-lease-time 7200;
+  next-server 50.0.0.5;
+  filename "pxelinux.0";
+}
+
+chkconfig dhcpd on
+
+通过DNS找到tftp服务,再找到引导文件
+===============================================================
+tftp:
+udp 69端口
+1.isolinux:里是centos6.6用于pxe的引导程序
+cd /var/lib/tftpboot/
+cp /usr/share/syslinux/pxelinux.0 /var/lib/tftpboot/ 
+scp 50.0.0.1:/var/ftp/mnt/isolinux/* /var/lib/tftpboot/
+
+mkdir centos6.6 rhel6.4
+scp 50.0.0.1:/var/ftp/mnt/isolinux/initrd.img centos6.6/
+scp 50.0.0.1:/var/ftp/mnt/isolinux/vmlinuz centos6.6/
+
+scp 50.0.0.1:/var/ftp/mnt6.4/isolinux/initrd.img rhel6.4/
+scp 50.0.0.1:/var/ftp/mnt6.4/isolinux/vmlinuz rhel6.4/
+
+2.创建pxe安装过程中的菜单 default默认菜单:
+mkdir pxelinux.cfg
+cp isolinux.cfg pxelinux.cfg/default
+修改安装项目,上面不动下面label修改
+vim pxelinux.cfg/default:
+default vesamenu.c32
+#prompt 1
+timeout 600
+
+display boot.msg
+
+menu background splash.jpg
+menu title Welcome to CentOS 6.6!
+menu color border 0 #ffffffff #00000000
+menu color sel 7 #ffffffff #ff000000
+menu color title 0 #ffffffff #00000000
+menu color tabmsg 0 #ffffffff #00000000
+menu color unsel 0 #ffffffff #00000000
+menu color hotsel 0 #ff000000 #ffffffff
+menu color hotkey 7 #ffffffff #ff000000
+menu color scrollbar 0 #ffffffff #00000000
+
+label centos6.6
+  menu label ^my-centos6.6
+  menu default
+  kernel centos6.6/vmlinuz
+  append initrd=centos6.6/initrd.img
+
+label rhel6.4
+  menu label ^my-rhel6.4
+  kernel rhel6.4/vmlinuz
+  append initrd=rhel6.4/initrd.img
+
+
+3.tftp不是独立服务它依靠xinetd
+vim /etc/xinetd.d/tftp
+disable	= no
+
+centos6:
+service xinetd restart
+netstat -anp|grep :69
+chkconfig --list
+
+centos7:
+systemctl start tftp
+systemctl status tftp
+systemctl enable tftp
+
+4.测试tftp
+[root@web11 ~]# tftp 50.0.0.5
+tftp> get pxelinux.0
+===============================================================
+PXE测试手动安装:
+pxe-server:
+1.换成隔离网络 fifty
+iptables -F
+
+2.手动设置静态ip为50.0.0.5
+vim /etc/sysconfig/network-scripts/ifcfg-eth1 
+DEVICE=eth1
+TYPE=Ethernet
+ONBOOT=yes
+NM_CONTROLLED=no
+BOOTPROTO="static"
+IPADDR=50.0.0.5
+PREFIX=8
+
+service dhcpd restart
+chkconfig dhcpd on
+service vsftpd start
+chkconfig vsftpd on
+
+centos6:
+service xinetd restart
+
+centos7:
+service tftp restart
+
+3.client1:
+设置网卡到fifty
+Boot options选PXE,取消HardDisk
+===============================================================
+===============================================================
+===============================================================
+通过KickStart实现自动安装
+把整个安装过程中要回答或做的事全部体现在应答文件中
+方法一： 手动安装一台服务器，会自动生成ks文件，修改！
+方法二： 需要一个带图形的linux 使用 system-config-kickstart
+
+1.宿主机上知道ks文件
+yum -y install system-config-kickstart
+配置system-config-kickstart:
+基本配置:开启，安装后重新引导
+安装方法: ftp://50.0.0.1 路径mnt
+分区信息: 清楚主引导分区 做2个分区 /boot 200M ,/ fill all unused space on disk
+网络设置:eth0 dhcp
+防火墙:禁用
+安全级别(selinux):禁用
+显示配置:关闭图形环境
+没有最小安装,先随便选个包,然后手动改
+安装前后的部署现在基本不用kickstart,而用puppet之类的软件
+
+cat centos6.6.cfg:
+#platform=x86, AMD64, or Intel EM64T
+#version=DEVEL
+# Firewall configuration
+firewall --disabled
+# Install OS instead of upgrade
+install
+# Use network installation
+url --url="ftp://50.0.0.1/mnt"
+# Root password
+rootpw --iscrypted $1$XvgRFl9l$0ZEHAWQ1OrZlMMyfH2R/A1
+# System authorization information
+auth  --useshadow  --passalgo=sha512
+# Use graphical install
+text
+firstboot --disable
+# System keyboard
+keyboard us
+# System language
+lang en_US
+# SELinux configuration
+selinux --disabled
+# Installation logging level
+logging --level=info
+# Reboot after installation
+reboot
+# System timezone
+timezone  Asia/Shanghai
+# Network information
+network  --bootproto=dhcp --device=eth0 --onboot=on
+# System bootloader configuration
+bootloader --location=mbr
+# Clear the Master Boot Record
+zerombr
+# Partition clearing information
+clearpart --all
+# Disk partitioning information
+part /boot --fstype="ext4" --size=200
+part / --fstype="ext4" --grow --size=1
+%packages
+@core
+%end
+
+rhel6.4.cfg和centos6.6.cfg唯一的区别就是ftp位置不同
+cp centos6.6.cfg /var/ftp/
+cp rhel6.4.cfg 	/var/ftp/
+
+二、使用ks文件
+pxe-server:
+vim /var/lib/tftpboot/pxelinux.cfg/default
+default vesamenu.c32
+#prompt 1
+timeout 600
+
+display boot.msg
+
+menu background splash.jpg
+menu title Welcome to CentOS 6.6!
+menu color border 0 #ffffffff #00000000
+menu color sel 7 #ffffffff #ff000000
+menu color title 0 #ffffffff #00000000
+menu color tabmsg 0 #ffffffff #00000000
+menu color unsel 0 #ffffffff #00000000
+menu color hotsel 0 #ff000000 #ffffffff
+menu color hotkey 7 #ffffffff #ff000000
+menu color scrollbar 0 #ffffffff #00000000
+
+label centos6.6
+  menu label ^my-centos6.6
+  kernel centos6.6/vmlinuz
+  append initrd=centos6.6/initrd.img
+
+label rhel6.4
+  menu label ^my-rhel6.4
+  kernel rhel6.4/vmlinuz
+  append initrd=rhel6.4/initrd.img
+
+label centos6.6(auto)
+  menu label ^my-centos6.6(atuo)
+  menu default
+  kernel centos6.6/vmlinuz ks=ftp://50.0.0.1/centos6.6.cfg
+  append initrd=centos6.6/initrd.img 
+
+label rhel6.4(auto)
+  menu label ^my-rhel6.4(auto)
+  kernel rhel6.4/vmlinuz  ks=ftp://50.0.0.1/rhel6.4.cfg
+  append initrd=rhel6.4/initrd.img
+
+menu defualt: 最终结果只要pxe菜单把自动安装设置成默认，只要开机就能自动安装系统
+=======================================================
+每台客户端机的操作流程:
+开机前:
+虚拟机,设置网段到fifty,真机只要网络能通常就行
+
+开机:
+开机设置为临时启动首选项为pxe,但首选项还是硬盘，装完系统重启要走硬盘
+在kvm中操作就是boot options: enable boot menu->第一hard disk 第二 pxe

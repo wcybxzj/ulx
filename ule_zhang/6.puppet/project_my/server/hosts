@@ -1,0 +1,6 @@
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+192.168.91.11 web11.com
+192.168.91.11 server.puppet.com
+192.168.91.4 agent1.puppet.com
+192.268.91.5 agent2.puppet.com

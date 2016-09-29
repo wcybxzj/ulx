@@ -1,0 +1,42 @@
+1.Network is unreachable
+node1:192.168.122.101
+无默认网关,无1.1.1.0/24的路由规则
+
+node1:
+route del default
+ping 1.1.1.1
+-----------------------------------------------------
+2.Destination Host Unreachable:
+情况1:
+node1没有默认网关
+
+node1:192.168.122.101 
+ping一个不存在的本网段的机器
+ping 192.168.122.234
+
+eth0 在arp查找
+lo回复Destination Host Unreachable
+tcpdump -i eth0 -nn 192.168.122.234
+tcpdump -i lo -nn 192.168.122.234
+-----------------------------------------------------
+2.Destination Host Unreachable:
+情况2:
+node1有默认网关,
+认网关有去目标网段的路由但是目标主机不在目标网段内
+
+情况发生在策略路由中
+node1的默认网关是node3，node3因为策略路由的原因返回给node1:Destination Host Unreachable
+-----------------------------------------------------
+3.Destination Net Unreachable
+
+node1:192.168.122.101 
+node2:192.168.122.102
+
+node1的默认网关是node2
+node2开ip_forward,无默认网关,
+node2没有2.1.1.0/24的路由规则
+
+node1:
+route del default
+ip route add default via 192.168.122.102 dev eth0
+node1:ping 1.1.1.100

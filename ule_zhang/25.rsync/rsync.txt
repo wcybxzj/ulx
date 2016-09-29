@@ -1,0 +1,25 @@
+rsync两种模式
+方法一：
+基于sshd服务器，并client使用server的OS帐号同步数据，可以结合ssh公钥认证。
+
+方法二：
+Server端启动rsyncd服务，并创建专用的rsync帐号（最终也要映射到系统帐号，对应一定的权限）
+
+＝＝＝＝＝＝＝＝＝＝方法一：＝＝＝＝＝＝＝＝＝＝＝＝
+192.168.122.101 server.uplooking.com
+192.168.122.110 client.uplooking.com
+client作为数据源像server推送数据
+
+server:
+service sshd restart 
+
+client:
+语法：rsync [OPTION]... [USER@]HOST:SRC [DEST]
+rpm -qf `which rsync`
+rsync-3.0.6-4.el5_7.1
+rsync -va /etc/hosts /tmp/
+mkdir /testtmp
+rsync -va /testtmp  192.168.122.110:/tmp 
+rsync -va /testtmp/ 192.168.122.110:/tmp
+rsync -vza /testtmp 192.168.122.110:/tmp
+rsync -vza --delete /testtmp root@192.168.122.110:/tmp

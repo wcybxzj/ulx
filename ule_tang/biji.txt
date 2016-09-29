@@ -1,0 +1,993 @@
+教师机地址：172.16.30.1
+
+
+第一天：
+     1、图型界面与文本界面的切换
+       ctrl+alt+F(1或7)     ctrl+alt+F(2..6)
+     2、关闭防火墙
+       1>iptables -F  清空防火墙规则
+       2>service iptables stop 关闭防火墙
+       3>chkconfig --level 35 iptables off   在3、5级别下关闭防火墙
+     3、关闭selinux
+       1>getenforce    查看selinux状态
+       2>setenforce 0  关闭selinux
+       3>vim /etc/selinux/config
+             SELINUX＝disabled
+     4、终端使用
+       1>点击桌面，选择在终端中打开，即可打开终端
+       2>点击应用程序，系统工具－－－终端
+       
+       3>在终端中再次打开一个新的终端，使用：ctrl+shift+n
+       4>在终端中打开一个新的标签，使用：ctrl+shift+t
+     5、linux终端提示
+       [root        @        localhost 桌面]             # 
+
+        当前登录的用户＠（分隔符）主机名  当前所在的工作目录  ＃标示管理身份
+     6、linux系统中的命令格式
+        命令     选项      参数（作用的对象）
+例如：   ls       -l       inistall.log
+
+     7、基本命令
+       ls  查看目录下的文件或子目录
+           选项： -l   以长格式显示，即显示文件或目录属性
+                 -a    显示所有文件或子目录包括隐藏的文件或子目录
+                 －h   以人性化的方式显示,要配合l选项使用
+       pwd 打开当前工作目录
+
+       cd  切换工作目录
+       相对路径：相对于当前位置的路径 例如：cd home
+       绝对路径：以/为起点的路径  例如：cd /home   
+      8、文件查看的命令
+        cat   查看文件，不宜显示长文件，直接显示在屏幕上。
+              选项：
+                  -n  显示时在行前加行号
+                  -b  显示时在行前加行号，但是只显示有效行
+       more  查看长文件，在左下角有％
+             可以使用enter向下翻行
+             可以使用空格向下翻页
+             可以b向上翻页
+             使用q键退出
+       less 查看长文件，可以使用上下方向键，也可以使用enter、空格键、b键。 使用q键退出
+
+       head 默认查看文件的前10行
+            head   install.log  查看此文件的前10行
+            head -n 5  install.log 查看此文件的前5行
+            head -8  install.log   查看此文件的前8行
+
+       tail 查看文件的结尾10行
+            tail   install.log  查看此文件的后10行
+            tail -n 5  install.log 查看此文件的后5行
+            tail -8  install.log   查看此文件的后8行
+
+       wc 统计文件行数、单词数、字符数
+             选项：-l 查看行数
+                  -w 查看单词数
+                  -c 查看字符
+             例如：wc install.log
+       grep 检索指定文件的内容
+            例如：grep "^root"  /etc/passwd  查找/etc/passwd文件中以root开头的行
+                 grep "bash$"  /etc/passwd  查找/etc/passwd文件中以bash结尾的行
+
+综合应用：
+       查看install.log里面的第20行
+    命令：cat -n install.log | head -20 | tail -1
+
+      9、创建文件的命令
+         touch  创建一个空文件或修改文件的创建时间
+         例如：touch 123.txt
+              touch 123.tx 456.txt aa.txt
+              touch abc{1..10} 创建abc开头的10个文件
+         echo  创建文件
+           例如：echo 1234   >     321.txt
+                命令  内容  重定向    文件名
+      10、创建目录
+          mkdir  创建一个空目录
+          例如：mkdir  uplooking   后面的uplooking是目录名
+               mkdir -p 1/2/3/4/5/6  创建连续的目录
+      11、cp
+          拷贝一个文件或目录，但是拷贝目录加－r选项，拷贝的同时可以为文件或目录更名
+          例如：cp install.log /home
+               命令   源文件    目的地
+               cp install.log /home/123.txt
+               命令  源文件       目的地＋更名
+               cp install.log  install.log.bak
+
+
+      12、mv
+           1>移动
+            例如：mv install.log /home 
+                mv install.log /home/5678.txt
+
+           2>重命名
+             例如：
+                  mv install.log install.log.bak
+                 命令   原名称       重命名后的名称
+      13、rmdir 删除空目录   
+                例如：rmdir abc   abc为空目录
+
+      14、rm 删除文件或目录，删除目录时，加-r
+          例如：rm 123.txt  删除123.txt文件
+               rm -r abc  删除abc目录
+          rm=rm -i，所以在删除时，不想输入y时，可以使用-f选项
+               rm -f 123.txt 删除123.txt时，将不会提示是否删除
+               rm -rf abc    删除abc目录时，将不会提示是否删除
+
+     15、命令帮助
+            1、--help
+            例如：ls --help
+            2、man --->manaul手册页
+            例如：man ls
+            3、info --->信息页
+            例如：info ls
+            4、type --->查看命令属性
+            例如：type ls
+            
+
+     16、ifconfig 查看ip地址
+         1>关闭networkmanager
+            命令：service NetworkManager stop
+         2>修改网卡配置文件
+            vim /etc/sysconfig/network-scripts/ifcfg-eth0tg
+            把ONBOOT=no 修改成ONBOOT＝yes
+         3>重启网卡
+           service network restart
+         4>查看网卡ip地址
+           命令：ifconfig
+
+
+     17、vim编辑器使用
+        1>模式：命令，输入（插入、编辑），末行（执行）
+        2>模式之间的转换
+          命令模式进入编辑模式使用：i,I,a,A,o,O,s,S 
+          编辑模式返回命令模式使用：esc键
+          命令模式进行执行模式使用：：冒号（shift+:）
+        3>命令模式
+          yy复制光标所在的当前行1行 
+          dd删除或剪切光标所在的行1行
+          p粘贴
+          /word 在文件中查找某一个词，word为想要查找的部分
+                查找到后，使用n键向下查看；使用N键向上查看
+          
+        4>编辑模式
+         
+
+        5>执行模式
+          w  filename(文件名) 保存或另存为
+          wq 保存并退出
+          wq! 强制保存退出
+          q!强制退出，不保存
+        6>执行模式查找并替换
+          s/old/new  查找当前光标所在的行old并替换为new
+         2，10s/old/new 查找2－10行内的old并替换为new
+         ％s/old/new/g 查找文件中所有的old并进行全局替换为new
+         
+
+           
+         
+
+
+     18、mount u 盘
+         1>查看U盘叫什么？
+           命令：fdisk -l  查看U盘在系统中的分区名称
+         2>挂载
+           命令：mount -t vfat /dev/sdb1 /mnt
+         3>卸载
+           命令：umount /mnt或umount /dev/sdb1
+                umount -l /mnt      强制卸载
+
+
+
+     19、用户管理
+          1>用户ID的问题：
+            root id:0
+            系统用户：id:1-499
+            普通用户：500－60000
+          2> 用户家目录   
+           root的家目录／root
+           普通用户的家目录/home／普通用户的名字
+          3>用户名和密码保存文件
+            /etc/passwd   用户名保存位置
+            格式：root :   x     : 0  :0  :rootadmin:/root:/bin/bash
+                 用户名：密码占位符：uid:gid:全名或描述：家目录：默认使用的命令解决工具
+
+            /etc/shadow   用户密码保存位置
+           格式：root  :$1!@  :16789           :0                   :99999                 :7           : : :
+                用户名：加密密码：距离unix元年天数：修改密码次数（不限制）：最长密码使用有效期（天）：密码失效前7天提醒： ：：
+ 
+            
+         4>添加用户
+          useradd 命令
+                  选项：
+                  -u 指定用户的id
+                   例如：useradd  -u   501  jack
+                         命令    选项   id  用户名    
+                  -d 指定用户的家目录  
+                   例如：useradd -d /home/abc(此目录不存在) jack 添加用户时指定jack家目录
+                  -s 指定用户使用的shell
+                   例如：useradd -s /sbin/nologin jack 添加用户时指定jack默认使用的shell
+                  -c 指定用户的全名或描述
+                   例如：useradd -c quangming jack
+                  -o 添加一个已经存在的ID的用户
+                  例如：[root@localhost 桌面]# useradd -o -u 0 admin
+                                                      添加一个管理员帐户
+
+          添加用户的方法：
+              方法一：使用命令添加
+                    useradd
+              方法二：手动修改文件添加
+                    准备组、密码：
+                    组：groupadd uplooking
+                    密码：
+                    [root@localhost ~]# grub-md5-crypt 
+                    Password: 
+                    Retype password: 
+                    $1$NDJ.Z$k/42Fbvf8GnnBpKfBA/AY.
+
+                    1、修改/etc/passwd,在尾行添加：
+                   jack:x:505:505::/home/jack:/bin/bash
+
+                    2、修改/etc/shadow
+                   jack:$1$NDJ.Z$k/42Fbvf8GnnBpKfBA/AY.:16789:0:99999:7:::
+
+              方法三：批量添加
+                    1、编辑用户名文件
+                      vim userlist.txt
+                      内容如下：
+                      abc1:x:506:506::/home/abc1:/bin/bash
+                      abc2:x:507:507::/home/abc2:/bin/bash
+
+                      newusers < userlist.txt   使用此方式导入用户名列表文件
+
+                    2、编辑密码文件
+                      vim passwd.txt
+                      内容如下：
+                      abc1:123456
+                      abc2:123456
+                     
+
+                      chpasswd < passwd.txt     使用此方式导入用户密码文件
+            
+             方法四：使用脚本添加
+                   1、vim useradd.sh
+                   2、useradd.sh内容
+                     ＃！/bin/bash
+                     for i in {1..10}
+                     do
+                           useradd a$i
+                           echo 123456 | passwd --stdin a$i
+                     done
+            
+               5>删除用户
+                  userdel
+                         -r 连同家目录一同删除
+                         例如：userdel -r abc
+
+               6>设置用户密码
+
+                  passwd
+
+                        -l 锁定用户密码  密码前加！！
+                        -u 解锁用户密码
+                        -S 查看密码状态
+
+               7>修改用户属性
+                  usermod
+                        -c   修改注释
+
+                        -s   修改默认登录使用的shell
+
+                        -d   修改家目录
+
+                        -m   移动家目录
+                    例如：[root@localhost ~]# usermod -m -d /home/hehe tomdog
+
+                        -L  锁定用户帐户  密码前！
+
+                        -U 解锁用户帐户
+                        
+                        -a 可以使用此选项来完成添加一个用户到多个附加组
+
+                        例如：usermod -a -G abc,aaa,ccc username(用户名)
+20、组的管理
+   1>添加组
+     groupadd
+     例如：groupadd abc(组名)
+   2>删除组
+     groupdel
+     例如：groupdel abc(组名)
+   3>修改组属性
+     groupmod
+          -g 修改组ID
+     例如：groupmod -g 2000 uplooking  2000是新修改的组的ID
+          -n 修改组名
+     例如：groupmod -n newgroupname oldgroupname
+
+21、文件或目录拥有者及所属组的管理
+    chown
+    例如：chown jack install.log(file／dir)
+               拥有者 文件名或目录
+         chown .uplooking install.log(file／dir)
+                所属组       文件名或目录名
+         chown jack.uplooking install.log(file／dir)
+22、更改文件或目录所属组 
+     chgrp
+     例如：
+
+23、文件或目录权限管理
+    1>查看文件或目录权限
+      ls -l 查看当前目录下文件或子目录的权限
+      ls -l install.log 查看指定文件的权限
+      ls -ld /home查看指定目录的属性
+    2>权限的格式
+       － － － ｜ － － － ｜ － － －
+       拥有者(u)  所属组(g)   其他人(o)    所有人（a）
+       r w  x     r  w  x  r  w  x
+       4 2  1     4  2  1  4  2  1
+
+
+     3>修改权限
+       chmod
+       chmod ugo +- rwx   file／dir
+       chmod 0755  file／dir
+     4>针对文件的权限
+       r  可以使用cat,more,less,head,tail  
+       w  vim >  >>
+       x  执行它 做为普通用户要具体rx的权限才能执行，做为管理root只要具体x就可以执行。
+
+
+    文件的权限取决于上级目录的权限
+
+
+     5>针对目录的权限
+       r 列出此目录下的文件或子目录
+       w touch mkdir
+       x cd 进入
+     6>特殊权限
+       set uid  只能对二进制文件进行设置，设置完成后，其他人或所属组成员执行拥有与拥有者一样的权限
+       例如：chmod 4755 /usr/bin/less  修改less文件权限
+            rwsr-xr-x    /usr/bin/less  #请注意拥有者权限位置,如果此处有一个S出现，说明文件原权限拥有者执行权限位置没有执行权限
+            less /etc/passwd    ＃使用普通用户登录后，执行less命令即可。
+
+       set gid  对目录进行设置，设置完成后，其他人在此目录中创建的文件或子目录所属组都自动设置为上级目录的所属组。
+       例如：chmod 2757  /test
+            rwxr-srwx   root uplooking  /test  ##请注意所属组权限位置,如果此处有一个S出现，说明目录原权限拥有者执行权限位置没有执行权限
+            #用户登录到此目录中创建文件或目录均为上一级所属组。
+            
+        set sticky(t) 
+        例如：chmod 1757 /test 
+             rwxr-xr-t /test ＃请注意其他人权限位置,如果此处有一个T出现，说明文件原权限拥有者执行权限位置没有执行权限
+        切换至普通用户进行/test中，创建文件或目录；再切换到其他普通用户，使用删除命令对前一个普通用户的文件进行删除操作，如无法删除则正常。
+
+24、作业任务管理
+       1>进程管理
+         ps      查询进程，以静态显示
+            -ef
+             ef
+             aux
+         top     查询进程，动态更新
+
+         kill    结束进程，命令后面直接添加进程ID
+             -9
+             -15
+         
+         把将要执行的命令直接在后台执行使用＆符号，在后台执行后，将处于停止状态
+
+         jobs 查看后台作业任务
+  
+         fg   把后台作业任务调到前台运行
+
+         bg   把后台停止的作业任务在后台运行
+
+        ctrl+z 把正在执行的命令直接调入到后台执行，也将处于停止状态。
+        
+
+
+       2>计划任务管理
+         at  执行一次性的计划任务  
+         例如：at 20:30
+             at>/bin/touch /root/123.txt
+             at> 按ctrl+d
+    
+         atq  查询at计划任务，会有编号
+         atrm 删除at计划任务
+         例如：atrm 编号
+         at设置的任务保存在/var/spool/at
+        
+         cron周期性执行的计划任务
+         —— —— —— —— ——  command
+         分  时 日  月 周
+         crontab -e
+         50 7 * * * /sbin/service httpd start
+         00 22 * * * /sbin/service httpd stop
+         crontab -e -u 用户  给指定用户添加计划任务
+         crontab -r 删除当前用户的计划任务
+         crontab -l 查看当前用户的计划任务
+          
+
+25、环境变量
+    1>查看环境变量
+      env
+      echo $HOME
+      echo $SHELL
+      echo $PATH
+      echo $ID
+    2>自定义变量
+      例如：TODAY=SUNDAY
+           echo $TODAY
+           export TODAY  输出变量值，被当前shell的子shell继承
+    要注意单引号，双引号，反撇号的使用。
+    3>预定义变量
+       $$ $?
+
+    4>位置变量
+      $1 $2 $3 .. $9
+      例如：grep "^root"     /etc/passwd | awk -F : '{print $1,$7}'
+                 以root开头                      以冒号分隔   显示第一行，显示第七行
+
+    5>别名
+      alias定义别名
+     例如：alias lll=ls
+          alias llll="ls -lha"
+
+      定义永久别名：
+       1>～/.bashrc
+       2>/etc/bashrc
+         
+      unalias 删除别名
+      例如：unalias lll
+
+    6>用户配置文件
+         /etc/default/useradd   #用户配置文件
+         用户家目录下的配置文件：
+         .bash_history 保存用户使用过的命令
+         .bash_logout 用户退出时执行的文件
+         .bashrc保存别名
+         .bash_profile保存用户命令查询路径
+    7>用户命令历史
+         history 查看命令历史
+         ！命令历史编号
+          ！最后一次执行以XX开头的命令
+          例如： su - jack
+               !su        再一次执行su切换用户
+               alt+.直接调用上一次执行命令的最后一个参数
+
+26、文件压缩、归档
+    1>gzip、gunzip      ＃只能对文件进行压缩，不可对目录进行压缩。
+      例如：gzip filename(文件名)
+          压缩完成后的文件名：filename.gz
+      例如：gunzip filename.gz(注意此处的格式)
+           
+      
+
+    2>bzip2、bunzip2    ＃只能对文件进行压缩，不可对目录进行压缩。
+      例如：bzip2 filename(文件名)
+          压缩完成后的文件名：filename.bz2
+      例如：bunzip2 filename.bz2(注意此处的格式)
+
+    3>tar对文件或目录进行归档
+      例如：tar   cvf      root.tar       /root
+               c表示创建    归档后文件名    被归档的目录
+               v显示过程
+               f后接文件名
+27、磁盘管理
+   1>磁盘分区管理（含swap） 
+     fdisk -l                        ＃查看磁盘情况
+     fdisk /dev/sd*                  ＃进入交互式管理
+     n-->p-->default-->+1G-->p-->w   ＃创建一个1G的主分区
+
+     partx -a /dev/sd*               ＃强制刷新磁盘分区
+
+     mkfs.ext4 /dev/sd*（分区号）      #格式化磁盘分区
+     mkfs -t ext4 /dev/sd*(分区号)
+
+     mount 
+     
+     /etc/rc.local                    #三种自动挂载方式
+     /etc/fstab
+     /etc/auto.master
+
+    umount
+
+    虚拟交换分区管理
+     以分区形式添加
+      fdisk /dev/sd*
+      n-->p-->分区编号（若默认的，可不用填写）-->大小设置-->p(查看)－－>t（修改分区ID类型）－－>分区编号-->82-->w
+      ls /dev/sd*
+      partx -a /dev/sd*      ＃刷新kernel分区
+      mkswap /dev/sd**       ＃格式化交换分区
+      swapon /dev/sd**       ＃开启分区交换功能
+      swapon -s             #查看交换分区情况
+      free -m              ＃查看内存，交换分区情况 
+      swapoff /dev/sd**    ＃查看以分区创建的交换分区
+
+
+        实现自动挂载
+        vim /etc/fstab
+        /dev/sd**	swap 	swap 	defaults 0 0
+   或UUID=XXXXXXXXXX    swap    swap     defaults 0 0
+
+
+     以文件形式添加
+       dd if=/dev/zero of=/swapfile(在/下添加时，一定要注意查看空间可用情况)  bs=1G count=2
+       mkswap /swapfile
+       swapon /swapfile    
+       swapon -s           #查看交换分区情况
+       free -m             ＃查看内存，交换分区情况
+       swapoff /swapfile   ＃关闭以文件创建的交换分区
+
+     实现自动挂载
+        vim /etc/fstab
+        /swapfile	swap 	swap 	defaults 0 0
+   或UUID=XXXXXXXXXX    swap    swap     defaults 0 0
+
+      ****************查看块设置的UUID，使用blkid  /dev/sd** 或 /swapfile***********************
+
+
+
+   2>ln管理
+     软链接：
+       ln -s
+       例如：ln -s hello.txt welcom.txt
+                  源文件      链接文件
+            ln -s  /root/hello.txt /home/welcom.txt
+            ln -s  /root/a(目录)  ／root/a1(目录)
+            ln -s  /root/b(目录)  ／home/b1(目录)
+      
+            可以做相同或不同分区文件、目录软链接
+
+     硬链接：
+       ln
+       例如：ln hello.txt welcom.txt
+                源文件     链接文件
+             不可以为目录做硬链接
+             只能对相同分区的文件做硬链接
+             做硬链接的文件inode编号相同
+
+
+
+   3>磁盘限额
+     qouta
+     只有针对独立分区进行设置
+     fdisk /dev/sd*
+     mkdir /sd**
+     mount -o 4,grpquota /dev/sd** /sd**
+  或 vim /etc/fstab
+     /dev/sd**    /sd**   ext4   defaults,usrquota,grpquota    0 0  (使用mount -a)
+     quotacheck -auvcg(如果前面有分区被做限额，请把a选择去掉)或使用quotacheck -ugcv /dev/sd**  #创建限额文件usrquota,grpquota,请注意selinux是否关闭，如没有关闭则不可以创建成功。
+     edquota -u jack(用户名)  ＃可以把用户的宿主目录放在限额空间上，如果不是宿主目录，则需要修改权限。
+     磁盘空间限额（KB）及文件索引节点限额（个）
+     quotaon /dev/sd** 或 quotaon /sd**(挂载点)
+     su - jack
+     dd if=/dev/zero of=data bs=1M count=100
+
+    多用户在同一分区上做限额
+      edquota -p（复制） yyy(已限额用户) zzz（未限额用户）
+
+
+    对组进行限额
+      groupadd uplooking
+      useradd -g uplooking -d /sd**/xxx   xxx
+      useradd -g uplooking -d /se**/fff   fff
+      edquota -g uplooking
+      su - xxx
+      使用dd if=/dev/zero of=data bs=1M count=100
+      su - fff
+      使用dd if=/dev/zero of=data bs=1M count=100
+
+     对宽限期进行修改
+       edquota -t
+
+     涮新所有用户限额
+       repquota -a
+
+     
+
+
+
+     
+
+     
+     
+
+
+   4>LVM
+     pv
+     fdisk /dev/sd*
+     n-->p-->分区编号-->分区大小-->t-->8e－－>p（查看）-->w
+     pvcreate /dev/sd** /dev/sd**
+     pvdisplay
+
+     vg
+     vgcreate vgtest（名字） /dev/sd** /dev/sd**
+     vgdisplay vgtest
+
+
+     lv
+     lvcreate -n lvtest（名字） -L 4G /dev/vgtest
+     lvdisplay /dev/vgtest/lvtest
+
+     mkfs.ext4 /dev/vgtest/lvtest
+     mkdir /lvtest
+     mount /dev/vgtest/lvtest /lvtest(也可以使用三种自动挂载的方式)
+     df -h
+
+     扩大
+     vg
+     fdisk /dev/sd*
+     n-->p-->分区编号-->分区大小-->t-->8e－－>p（查看）-->w
+     pvcreate /dev/sd** /dev/sd**
+     vgextend vgtest /dev/sd**
+
+     lv
+     lvextend -L +500M /dev/vgtest/lvtest
+     resize2fs /dev/vgtest/lvtest
+
+     缩小
+
+     lv
+       umount 
+       fsck -c /dev/vgtest/lvtest
+       resize2fs  /dev/vgtest/lvtest 500M
+       lvreduce -L -(加减号是减多少，不加减号指减到多少)500M /dev/vgtest/lvtest
+       mount
+
+     vg
+        vgreduce vgtest /dev/sd**
+
+     pv
+         pvremove /dev/sd**
+
+     lvm快照管理
+       lvcreate -s -n lvtest_snapshot -L 500M /dev/vgtest/lvtest
+       
+       lvdisplay /dev/vgtest/lvtest_snapshot
+
+       lvs /dev/vgtest/lvtest_snapshot
+
+       lvchange -ay /dev/vgtest/lvtest_snapshot(不能激活，就可以删除，重新做一份快照)
+       lvremove /dev/vgtest/lvtest_snapshot
+
+       lvm快照还原
+       把lvm卷及lvm卷快照全部卸载后，做还原操作
+       lvconvert --merg /dev/vgup/lvup_s(快照文件)  －－>还原
+
+
+
+
+
+   5>RAID
+     RAID 0 线性卷，一个数据两个硬盘同时读写，读写速率高，但是不支持容错，不提供冗余机制。需要2块硬盘。
+     RAID 1 镜像卷，一个数据在两块硬盘里写，空间使用为50％，支持容错。需要2块硬盘。
+     RAID 5 需要3块硬盘及以上，空间使用率为2块硬盘空间。支持容错，但是检验机制。
+     RAID 10是RAID0与RAID1综合应用。
+    
+     RAID 0
+           准备2块硬盘
+           fdisk /dev/sd*
+           n-->p-->1-->default-->+5G-->p-->t-->fd-->w
+           mdadm -C /dev/md0 -a yes -l 0 -n 2 /dev/sd{*,*}1 #创建RAID 0
+           mkdir /md0   #创新挂载点
+           mkfs.ext4  /dev/md0 ＃格式化md0
+           mount /dev/md0 /md0 ＃挂载md0
+           df -h  #查看磁盘空间
+           cat /proc/mdstat  ＃查看md状态
+           mdadm -D /dev/md0 ＃查看指定md状态
+           mdadm -S /dev/md0 ＃停止md
+           mdadm -A /dev/md0 /dev/sd{*,*}1 ＃开启md
+
+          清除块设备中的RAID信息：
+             umount /dev/md0
+             mdadm -S /dev/md0
+             mdadm --zero-superblock /dev/sd* #按此方法操作后，此分区才将可以当做普通盘使用。
+             
+           
+
+      RAID 1
+           准备2块硬盘
+           fdisk /dev/sd*
+           n-->p-->1-->default-->+5G-->p-->t-->fd-->w
+           mdadm -C /dev/md1 -a yes -l 1 -n 2 /dev/sd{*,*}1 ＃创建RAID 1
+           mkdir /md1 ＃创建挂载点
+           mkfs.ext4  /dev/md1 ＃格式化md1
+           mount /dev/md1 /md1 ＃挂载md1
+           df -h ＃查看磁盘空间情况
+           cat /proc/mdstat  ＃查看md状态
+           mdadm -D /dev/md1 ＃查看指定md状态
+           mdadm -S /dev/md1 ＃停止RAID 1
+           mdadm -A /dev/md1 /dev/sd{*,*}1 ＃开启RAID 1
+
+          硬盘故障模拟
+           mdadm -f /dev/md1 /dev/sd** #此位置的分区为RAID5组中的分区,标记损坏。
+           cat /proc/mdstat #查看md状态，会发现出现故障的分区内容会自动同步到备份空间的分区上，有箭头及％。
+           mdadm -r /dev/md1 /dev/sd**#此为热移除故障磁盘。
+
+           添加一个镜像盘
+           fdisk /dev/sd*
+           n-->p-->1-->default-->+5G-->p-->t-->fd-->w
+           mdadm -a /dev/md1 /dev/sd**
+           watch -n 1 cat /proc/mdstat
+         
+
+     RAID 5
+           准备4块硬盘
+           fdisk /dev/sd*
+           n-->p-->1-->default-->+5G-->p-->t-->fd-->w
+           mdadm -C /dev/md2 -a yes -l 5 -n 3  -x 1 /dev/sd{*,*,*,*}1 #创建RAID 5
+           mkdir /md2 ＃创建挂载点
+           mkfs.ext4  /dev/md2 ＃格式化md2
+           mount /dev/md1 /md2 ＃挂载md2
+           df -h  ＃查看分区使用情况
+           cat /proc/mdstat ＃查看md状态
+           mdadm -D /dev/md2＃查看指导md状态
+           mdadm -S /dev/md2＃停止RAID 5
+           mdadm -A /dev/md2  /dev/sd{*,*,*,*}1 ＃开启RAID 5
+           
+           硬盘故障模拟
+           mdadm -f /dev/md2 /dev/sd** #此位置的分区为RAID5组中的分区,标记损坏。
+           cat /proc/mdstat #查看md状态，会发现出现故障的分区内容会自动同步到备份空间的分区上，有箭头及％。
+           mdadm -r /dev/md2 /dev/sd**#此为热移除故障磁盘。
+
+           添加一个备盘
+           fdisk /dev/sd*
+           n-->p-->1-->default-->+5G-->p-->t-->fd-->w
+           mdadm -a /dev/md2 /dev/sd**
+           watch -n 1 cat /proc/mdstat
+      
+      mdadm.conf配置
+           mdadm.conf是该软件的默认配置文件，主要作用是方便跟踪RAID的配置，尤其是可以配置监视和事件上报选项。其中写入每一个阵列组成的详细情况，用于在下次开启阵列后依据此文件重新装配阵列，否则就需要在开启时手动定义阵列成员。
+           cat /proc/mdstat
+           echo "DEVICE /dev/sd**  /dev/sd**" >> /etc/mdadm.conf  #添加以上RAID 0设备，用于开启
+           echo "DEVICE /dev/sd**  /dev/sd**" >> /etc/mdadm.conf  #添加以上RAID 1设备，用于开启
+           echo "DEVICE /dev/sd**  /dev/sd** /dev/sd** /dev/sd**" >> /etc/mdadm.conf  #添加以上RAID 5 设备，用于开启
+           mdadm -Ds >> /etc/mdadm.conf #指明RAID的名称，级别，UUID等基本信息
+           echo "MAILADDR admin@126.com" >> /etc/mdadm.conf
+           
+           
+                     
+
+
+     RAID10
+           准备4块硬盘并创建4个分区
+           fdisk /dev/sd*
+           fdisk /dev/sd*
+           fdisk /dev/sd*
+           fdisk /dev/sd*
+
+           先创建2个RAID 1
+           mdadm -C /dev/md11 -a yes -l 1 -n 2 /dev/sd** /dev/sd**
+           mdadm -C /dev/md22 -a yes -l 1 -n 2 /dev/sd** /dev/sd**
+
+           其次利用上面的2个RAID1创建1个RAID0
+           mdadm -C /dev/md33 -a yes -l 0 -n /dev/md{11,22}
+
+           查看阵列状态
+           cat /proc/mdstat
+
+           创建配置文件
+           echo "DEVICE /dev/md11 /dev/md22" >> /etc/mdadm.conf
+           mdadm -Ds >> /etc/mdadm.conf
+
+           停止和开启阵列
+            mdadm -Ss
+            mdadm -As
+
+
+      iscsi:
+         准备：
+             1、添加6块硬盘
+             2、使用一块硬盘创建一个分区
+              fdisk /dev/sdb
+              n-->p-->1-->enter-->enter-->w
+             3、使用一块硬盘创建一个lvm
+              pvcreate /dev/sdc
+              vgcreate vgtest /dev/sdc
+              lvcreate -n lvtest -L 10G vgtest
+             4、使用三块硬盘创建一个RAID5，外加一个备盘
+              mdadm -C /dev/md5 -a yes -l 5 -n 3 -x 1 /dev/sd{*,*,*,*}
+              echo "DEVICE /dev/sd* /dev/sd* /dev/sd* /dev/sd*" > /etc/mdadm.conf
+              mdadm -Ds >> /etc/mdadm.conf
+              echo "MAILADDR master@uplooking.com" >> /etc/mdadm.conf
+
+              5、配置YUM服务
+
+              6、服务端
+                 yum -y install scsi-target-utils
+                 service tgtd start
+                 chkconfig tgtd on
+                 vim /etc/tgt/targets.conf
+                  最下面添加：
+                 <target iqn.2015-12.com.uplooking.www:disk1>
+                         backing-store	/dev/sdb1
+                         backing-store  /dev/vgtest/lvtest
+                         backing-store  /dev/md5                 
+                 </target>
+
+              7、客户端
+                 yum -y install iscsi-initiator-utils
+                 chkconfig iscsi on
+                 chkconfig iscsid on
+                 vim /etc/iscsi/initiatorname.iscsi  添加下面一行
+                 Initiatorname=iqn.2015-12.com.uplooking:node1
+                 iscsiadm -m discovery -t sendtargets -p 172.16.30.225
+                 iscsiadm -m node -T iqn.2015-12.com.uplooking.www:disk1 --login
+                 
+
+find命令：
+
+find / -name filename
+find -name filename #在当前工作目录下查找
+find -iname filename or FILENAME ＃文件名不区分大小写查找
+find -user username -group groupname #查找属主与属组都是XXX的文件
+
+find -user username -not -group groupname 例如：find -user tom -not -group tom
+find -user username -o -user otherusername 例如：find -user tom -o -user jack
+find -not \( -user username -o -otherusername \) 例如：find -not \( -user tom -o -user jack \)
+
+find -uid 500
+
+find -perm 755 #根据权限查找
+find -perm +222 #任意角色拥有w权限即可匹配
+find -perm -222 #所有角色都应该拥有w权限
+find -perm -002 #每个角色至少权限
+
+find -size 10M
+find -size -10M
+find -size +10M
+
+find -atime   #上次被读取的时间
+     -mtime   ＃文件数据被修改的时间，内容修改了。
+     -ctime   ＃内容及属性修改时间
+find -ctime -10 #查找10天以内被改动过
+
+find -size +102400K -ok gzip {} \; ＃查看大于102400中K以上的数据，并压缩。
+find -size 10M -ok rm -f {} \;
+find -size +10M -exec rm -f {} \;
+
+find -name "*.conf" -exec cp {} {}.bak \;
+find /tmp -ctime +3 -user tom -ok rm {} \;
+find ~ -perm -002 -exec chmod o-w {} \;
+
+
+
+
+28、软件管理
+
+   1>rpm 
+     rpm红帽软件包管理工具，只能管理rpm格式
+     rpm -ivh 软件包名字
+     rpm -e softname              #现在软件
+     rpm -ivh 软件包名字 --nodeps   #无依赖安装软件
+     rpm -e 软件名字 --nodeps     #无依赖卸载软件
+     rpm -qa                    #查找软件
+     rpm -qa | grep httpd       #
+     rpm -qi httpd(softname) #查看软件的信息
+     rpm -ql httpd(softname) ＃查看安装位置
+     rpm -qc httpd(softname) #查看其配置文件的位置
+     rpm -qd httpd(softname) #查看文档
+     rpm -qf /usr/sbin/httpd(softname) #查看此软件是由哪个软件包安装的
+     rpm -qpl 软件包名字 #查看软件包内的列表
+     rpm -qpi 软件包名字 #查看软件包信息
+     
+     
+
+   2>yum
+        对rpm格式的软件包进行管理
+        yum:yellowdog updater modified     
+        yum主配置文件：
+        /etc/yum.conf
+
+        yum片断配置文件
+        /etc/yum.repos.d
+        名称：一定为repo结尾
+        例如：rhel6.repo
+        [yumserver]
+        name=rhel6.4
+        baseurl=file:///mnt
+        enabled=1
+        gpgcheck=0
+     
+        yum clean all  #清空原来的缓存历史
+        yum makecache 
+
+        yum install 名字
+        yum -y install 名字
+        yum list | grep httpd
+        yum reinstall 名字   #重新安装
+        yum update    #更新软件
+        yum remove    #移除软件
+
+        yum grouplist | grep "桌面"
+        yum groupinstall "桌面" 
+        yum groupremove "桌面"
+
+
+        创建本地目录为yum源
+        mkdir /root/public
+        yum -y install createrepo
+        cp /mnt/Packages/* /root/public
+        createrepo /root/public
+        创建完成后，会生成repodata目录
+        配置yum源即可使用。
+
+
+ 
+        创建ftp yum源
+        rpm -ivh vsftpd
+        service vsftpd start
+        chkconfig --level 35 vsftpd on
+        ftp根目录位置
+        /var/ftp/
+        可以把软件包放到
+        /var/ftp/pub目录下
+        createrepo /var/ftp/pub #生成repodata目录
+        配置yum源即可使用
+        vim /etc/yum.repos.d/ftp.repo
+        内容如下：
+        [ftpyumser]
+        name=vsftp yum server
+        baseurl=ftp://172.16.30.*/pub   # *表示ip地址
+        enabled=1
+        gpgcheck=0
+   
+
+
+        创建http yum源
+        rpm -ivh httpd
+        service httpd start
+        chkconfig --level 35 httpd on
+        http根目录
+        /var/www/html
+        可以把软件包放到
+        /var/www/html下
+        createrepo /var/www/html #生成repodata目录
+        配置yum源即可使用
+        vim /etc/yum.repos.d/http.repo
+        内容如下：
+        [httpyumser]
+        name=http yum server
+        baseurl=http://172.16.30.*  # *表示ip地址
+        enabled=1
+        gpgcheck=0
+
+        gpg文件导入
+        rpm --import /mnt/Packages/RPM.....realse
+        导入位置：/etc/pki/rpm-gpg
+        
+     
+
+   3>源码软件管理
+     tar -jxvf xxx.tar.bz2 -C /usr/local/src
+     cd /usr/local/src/xxx
+     ./configure --prefix=/usr/local/xxx  #编译前配置，指定安装目录
+     make #编译，如果无法编译，请检查是否缺少gcc及其组件
+     make install # 安装
+     cd xxx/bin
+     ./软件名
+     rm -rf /usr/local/src     删除文件
+     
+     添加到PATH中
+     vim /etc/bashrc
+     添加：
+     PATH=/usr/local/xxx/bin:$PATH    #其他用户亦可使用已安装的软件
+     export PATH
+
+
+
+   4>半源码软件管理
+    获取到办源码软件：lftp...src.rpm
+    rpm -ivh lftp
+    安装过程中，有提示安装不成功，
+    SOURCE SPECS
+    cd SPECS
+    
+    gpl 是gnu计划的一部分
+
+   5>二进制软件安装
+
+
+
+
+
+
+
+

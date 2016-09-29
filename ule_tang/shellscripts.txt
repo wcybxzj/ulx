@@ -1,0 +1,1867 @@
+shellscript-SHELL脚本
+第一天
+vim 编辑器使用
+1、正则表达式
+命令行普通查找使用/接需要查找的字符，例如：/tom,/tim
+元字符
+.表示匹配一个任意字符 例如：/t.m
+
+限定符
+＊表示从0字符到前面一个字符之间的匹配
+^查找以XX开头的行
+$查找以XX结尾的行
+[0－9]0-9中的任意一个数，或0，或1，或9等
+[abc]或者关系
+[^ a]排除关系
+\<tom\>限定内容
+
+
+	
+2、扩展正则表达式
+1、shell特性回顾
+shell是介于用户与系统内核之间的命令解释工具，是用户命令“翻译官”。帮助用户对系统进行相关的操作。
+2、shell种类
+chsh -l #使用命令查看当前系统中默认安装的shell
+cat /etc/shells #上一条命令执行的查看，既是查看此文件。
+3、shell操作
+tab键补全功能
+history命令历史查看功能
+>,>>,|等，输入、输出重定向功能等
+输入、输出重定向
+重定向输入  < 从指定的文件读取数据，而不是从键盘输入
+重定向输出  >将输出结果保存到指定的文件（覆盖原有内容）
+         >>将输出结果追加到指定的文件
+标准错误输出 2> 将错误信息保存到指定的文件（覆盖原有内容）
+           2>>将错误信息追加到指定的文件中
+混合输出    ＆> 将标准输出、标准错误的内容保存到同一个文件中
+
+4、shell编程规范（详见：test1.sh）
+#!/bin/bash    #脚本执行环境
+# 注释         #脚本的相关说明
+命令执行命令等 #脚本执行的命令语句
+5、shell脚本执行权限
+chmod +x scriptname 
+6、shell脚本执行
+方法一：在当前目录下，执行./test1.sh
+方法二：
+echo $PATH
+把需要执行的脚本文件拷贝到PATH路径下的任何一个目录中，然后直接执行即可。
+test1.sh
+方法三：bash test1.sh
+
+7、linux系统中的变量
+7.1常量
+常量是一个固定的量，在脚本执行过程中，固定不变。
+例如：1、2、3、4、5等
+
+7.2变量
+变量是一个可以变化的量，在脚本执行过程，可以发生变化。
+例如：
+7.3linux系统中的变量
+环境变量
+是一种shell预定义变量，是由系统统一命名的，变量名全部为大写。用于设定系统运行环境。一部分值由系统设定，一部分值由用户给定。
+7.3.1查看环境变量
+evn   #查看系统中的所有环境变量
+echo $PATH ＃查看系统中的指定环境变量
+echo $ID
+echo $HOME等
+echo $USER
+
+7.3.2自定义变量
+自定义变量规则：
+合法字符：字母、数字、下划线
+字符数量：<=20
+特别注意：区分大小写
+       例如：var与Var是两个变量名。
+声明：变量名＝变量值
+变量值的类型：自动分配，数字，字符串，日期，数组
+调用方式：$+变量名，例如：$var
+作用范围：脚本生存期内
+
+DAY=sunday #变量名＝变量值，变量名只能使用字母大小字或下划线来定义，变量值使用单个字符，如使用多个字符要使用单引号或双引号。变量名与变量值之间使用等号连接，不能使用空格，不然会被系统认为是某条命令，并会提示找不到此命令。
+export DAY=sunday
+echo $DAY
+word='hello world !' #使用单引号
+单引号：‘’，word='hello world !'
+双引号：“”，word="hello world !"#这行是错误的，叹号不能直接在shell命令行当中使用双引号引起来，默认情况下，！表示命令历史。但是在脚本中不区分，依旧表示为叹号(详见：test2.sh)。  
+反撇号：``，word=`which mount` #此定义为word等于which mount执行的结果。
+例如：
+var=date,系统会自动把date变为一个字符串赋值给var
+var=`date`,系统会将date的结果赋值给var.如果只想显示年月日，可以使用var=`date +%Y%m%d`
+
+如果在定义word=hello world中不使用单引号或双引号，单词之间的空格可以使用\ (空格)不完成，例如：word=hello\ world\ !
+var1=hello
+var2=world
+var3=$var1$var2
+var4='$var1 $var2'
+var5="$var1 $var2"
+输出以上变量时，请问哪一个是正确的？
+
+
+7.3.3自定义变量输出为全局变量
+export 变量名
+例如：pro=uplooking
+     echo $pro
+     export pro
+     通过当前shell的子shell亦可完成pro变量的输出。
+7.3.3.1取消自定义变量
+unset pro
+
+字符串连接
+str1=hello
+str2=world
+str=$str1$str2
+echo $str
+
+stroot=$str' '"123456"
+echo $stroot
+显示：helloworld 123456
+
+string="this is a test string:$stroot" 格式化字符串
+echo $string
+显示：this is a test string:hellworld 123456 
+
+字符串长度
+查看字符串的长度：
+expr length "hello"
+expr length "$str1" 不使用双引号会报错
+
+charcount=`expr length "$stroot"`
+echo $charcount
+
+expr index "$stroot" 'h'
+
+
+
+
+查找字符串中的字符位置
+字符串截断
+expr substr "$string" 1 7 #查看子字符串，1表示启始位置，7表示结束位置
+
+字符串匹配
+使用正则表达式匹配
+expr "$string" : 查找的字符串
+例如：
+expr "$string" : '.*' #要求完全匹配，.表示任意字符串，＊表示0到多个
+expr "$string" : '.*\([0-9]\{5\}\)' ＃查找自定义变量中的数字，（）表示查找子字符串，5表示字符个数。
+expr "$string" : '\([a-zA-Z： ]*\).*' #查找自定义变量中的英文字符
+
+
+expr match 
+
+shell编程中的运算
+
+逻辑运算
+＆与
+｜或
+>大于
+<小于
+=等于
+!=不等于
+<=小于等于
+=>大于等于
+
+数值运算
+＋
+－
+＊
+/
+％取余
+（）运算式中的子式
+
+expr expression
+result=$[expression]
+
+例如：
+num1=7
+num2=13
+num3=7
+expr $num1 \< $num2
+0代表失败，1代表成功
+
+result=$[$num1 < 19 ]
+echo $result
+
+expr $num1 = $num2
+
+result=$[$num1 = 7 ]错误
+result=$[$num1==7]正确
+echo $result
+
+例如：
+expr $num1 \* $num2
+
+result=$[$num1*$num2]
+echo $result
+
+result=$[$num1/$num2]
+echo $result
+只能进行整数运算
+
+shell编程中的浮点运算
+
+内建计算器bc
+
+bc能够识别：
+数字（整形和浮点型）
+变量
+注释
+表达式
+编程语句
+函数
+
+bc
+12.5*3 回车
+100/3
+33
+scale=4
+
+3.156*(3+5)
+25.248
+quit 退出bc
+
+bc -q 不提示版权等信息
+
+变量运算
+num1=12
+num2=3;num3=5
+num1/num3
+
+在脚本中使用bc
+var=`echo "scale=4;3.44/5" | bc`
+echo $var
+
+在命令行当中使用
+var1=10.46
+var2=43.37
+var3=33.2
+var4=71
+result=`bc << EOF
+>scale=4
+>a1 = $var1 * $var2
+>b1 = $var3 * $var4
+>a1+b1
+>EOF
+>`
+echo $result
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+7.3.4预定义变量（详见：test3.sh）
+预定义的特殊变量有着特殊的含义，用户不可以更改，所有的预定义变量都由“$”符号和另外一个符号组成，常用的预定义特殊变量如下：
+$#：位置参数个数（不包括shell脚本名）
+$*：位置参数组成的字符串
+$!：上一个后台命令对应的进程号
+$?:上一个命令的退出状态，为十进制数字，如果返回为0，则代表执行成功，则否为不成功。
+$$:当前的进程号PID
+以上变量请配合echo使用，例如：echo $! echo $$ echo $?
+
+
+
+7.3.5位置变量
+位置变量是根据命令出现在命令行上的位置来确定的变量，在shell调用过程中，会按参数所在的位置进行调用。
+$0   $1    $2    $3 .. $9
+命令 参数1  参数2  参数3
+例如：wc /etc/passwd /etc/group
+
+例如：
+   #!/bin/bash
+   #
+   echo "this scriptname is $0"
+   echo "this 1st argument is $1"
+   echo "this 2nd argument is $2"
+   echo "this 3rd argument is $3"
+   echo "参数分别为$*"
+   echo "共有$#个arguments"
+此脚本地执行时，使用sh执行即可。
+
+
+7.4命令介绍
+7.4.1read命令(详见：test4.sh or test5.sh)
+    当shell脚本执行到read命令时，将暂停脚本的执行并等待键盘的输入，当用户输入完华并且敲下回车之后，将完成赋值操作，脚本继续执行。
+例如：
+#!/bin/bash
+#
+read -p "Please keyin your name and press enter:" name
+echo "your name is $name"
+
+例如：
+#!/bin/bash
+#
+echo -n "please keyin your name and press enter:"
+read name
+echo "your name is $name"
+
+
+
+
+
+
+
+
+
+
+7.4.2test条件测试
+
+使用test可以对整数进行比较，数字比较使用如下（详见：test7.sh）
+-eq 等于
+-ge大于等于
+-gt大于
+-le小于等于
+-lt小于
+-ne不等于
+
+使用test可对字符进行比较,字符比较使用：＝，<,>等（详见：test8.sh）
+var1=abc
+var2=abd
+test $var1 = $var2
+echo $?  ＃比较成功显示为0，比较不成功显示为任意大于0的数值。
+或
+[ $var1 = $var2 ] ＃[，即左方括号为test的别名，使用左方括号注意，左括号后面一定跟着空格，要比较的条件，一个空格和右方括号，右方括号表示结束。
+echo $?
+
+
+test命令：
+方法一：
+
+if test condition
+then
+commands
+fi
+
+方法二：
+中括号［］
+if [condition]
+then
+commands
+fi
+
+
+
+
+
+
+
+declare 命令使用
+declare -[afirx]
+参数说明：
+-a定义为数组array
+-f定义为函数function
+-i定义为整数integer
+-r定义为只读
+-x定义为透过环境输出变量
+例如：（命令行）
+declare -i a=3
+declare -i b=5
+declare -i c=$a*$b
+echo $c
+例如：（脚本文件中）
+
+#!/bin/bash
+#说明部分
+number1=2*3+5*13-32+25
+declare -i number2=2*3+5*13-32+25
+echo "your result is ==>$number1"
+echo "your result is ==>$number2"
+
+
+
+
+
+
+
+shell编程中的条件判断
+
+if-then语句:高级语言中的与shell中有区别
+
+if [ 条件判断一 ] ＆＆（｜｜） ［ 条件判断二 ］；then  ＃＆＆与 ||或
+执行第一段内容
+elif [ 条件判断三 ］＆＆（｜｜） ［  条件判断四 ］；then
+执行第二段内容
+else
+执行第三段内容
+fi
+
+或下面的方式
+
+if command
+then
+comand
+fi
+
+
+单条件语句
+例如：
+#!/bin/bash
+if date  #date当其执行正确时，则按then执行,主要根据命令执行退出码判断。
+then
+echo "command worked"
+fi
+
+
+以下为错误的例子
+#!/bin/bash
+if dateksd
+then
+echo "command worked"
+fi
+echo "abcdef"
+
+全覆盖
+#!/bin/date
+if date
+then
+echo "command worked"
+else  ＃否则显示以下内容
+echo "command not found"
+fi
+
+
+
+
+
+
+
+
+
+
+
+或
+#!/bin/bash
+#
+echo -n "Please y to continue:"
+read yn
+if [ "$yn" = "y" ];then
+echo "script is running"
+else
+echo "script is stoped"
+fi
+
+
+
+或
+#!/bin/bash
+#
+echo -n "Please y to continue:"
+read yn
+if [ "$yn" = "y" ] || [ "$yn" = "Y"];then
+echo "script is running"
+else
+echo "script is stoped"
+fi
+
+
+
+
+或
+#!/bin/bash
+#
+if [ "$1" = "hello" ];then
+echo "hello! How are you ?"
+elif [ "$1" = "" ];then
+echo "You MUST input parameters"
+else
+echo "The only accept parameter is hello"
+fi
+
+
+
+
+
+或
+#!/bin/bash
+#www
+www=`netstat -an | grep LISTEN | grep :80`
+if [ "$www" != "" ];then
+echo "www is running"
+else
+echo "www is not running"
+fi
+#ftp
+ftp=`netstat -an | grep LISTEN | grep :21`
+if [ "$ftp" != "" ];then
+echo "ftp is running"
+else
+echo "ftp is not running"
+fi
+#ssh
+ssh=`netstat -an | grep LISTEN | grep :22`
+if [ "$ssh" != "" ];then
+echo "ssh is running"
+else
+echo "ssh is not running"
+fi
+#sendmail + pop3
+sendmail=`netstat -an | grep LISTEN | grep :25`
+pop3=`netstat -an | grep LISTEN | grep :110`
+if [ "$sendmail" != "" ] &&  [ "$pop3" != "" ];then
+echo "sendmail is ok"
+elif [ "$sendmail" = "" ] &&  [ "$pop3" != "" ];then
+echo "sendmail is not running"
+elif [ "$sendmail" != "" ] && [ "$pop3" = "" ];then
+echo "pop3 is not running"
+
+fi
+
+
+
+
+多条件语句
+if command1
+then
+commands
+elif command2
+then
+commands
+else
+commands
+fi
+
+
+
+
+复合条件判断
+［］＆＆［］与
+［］｜｜［］或
+
+三类条件
+数值比较
+字符串比较
+文件比较
+
+#!/bin/bash
+echo "please input a number:"
+read num
+
+if [ $num -gt 10 ]
+then
+echo "the number is greater then 10"
+fi
+
+if [ $num -lt 10 ] && [ $num -gt 5 ]
+then
+echo "the number is greater than 5 and less then 10"
+fi
+
+shell编程中常用的条件判断
+
+数值比较
+相等  n1 -eq n2
+大于等于n1 -ge n2
+大于n1 -gt n2
+小于等于n1 -le n2
+小于n1 -lt n2
+不等于n1 -ne n2
+
+字符串比较
+str1 = str2  相同
+str1 != str2 不同
+str1 > str2 str1比str2大
+str1 < str2 str1比str2小
+-n str1 字符串长度是否非0
+-z str1 字符串长度是否为0
+
+#!/bin/bash
+str1='abcd  ＃注意每个字母的ascii码
+str2='bacd'
+if [ $str1 \< $str2 ]
+then
+echo 'str1 is less then str2'
+elif [ $str1 \> $str2 ]
+then
+echo 'str1 is greater than str2'
+elif [ $str1 = $str2 ]
+then
+echo 'str1 is equal to str2'
+fi
+
+
+
+文件比较
+
+-d file 检查file是否存在并是一个目录
+-e file 检查file是否存在
+-f file 检查file是否存在并是一个文件
+-s file 检查file是否存在并非空
+
+file1 -nt file2 检查file1是否比file2新
+file1 －ot file2 检查file1是否比file2旧
+-r file 检查file是否存在并可读
+-w file 检查file是否存在并可写
+-x file 检查file是否存在并可执行
+-O file 检查file是否存在并属当前用户所有
+－G file 检查file是否存在并且默认组与当前用户相同
+
+例如：
+#!/bin/bash
+shellscript='testx'
+if [ -d $shellscript ]
+echo "$shellscript is a directory"
+fi
+
+if [ -f $shellscript ]
+echo "$shellscript is a file"
+fi
+
+if [ -x $shellscript ]
+echo "$shellscript is excutable"
+fi
+
+判断文件存不存在？
+例如：
+#!/bin/bash
+#
+if [ -f /root/install.log ]; then
+/bin/ls -l /root/install.log
+fi
+
+
+
+
+高级判断
+((expression)) 高级数学表达式
+[[expression]] 高级字符串比较
+高级数学表达式，例如
+#!/bin/bash
+var1=10
+if (( $var1 ** 2 > 90 ))
+then
+(( var2 = $var1 **2 ))
+echo "the square of $var1 is $var2"
+fi
+
+高级字符串比较，例如：
+#!/bin/bash
+if [[ $USER == r* ]]
+then
+echo "hello $USER"
+if
+
+
+shell编程中的条件判断
+
+case语句 #可以判断多条语句，从上到下匹配条件,给固定的值做判断，清晰易读。
+case variable in #variable是变量，in是关键字
+pattern1 | pattern2) commands1;; #pattern1、pattern2是条件，｜ 是条件之间的或者，commands1是条件成立后执行的命令
+pattern3) commands3;;
+*) default commands;; #*匹配所有条件，如果上面都没有匹配成功，将都匹配这条。
+esac
+
+例如：
+#!/bin/bash
+echo -n "Please input number of month:"
+read number
+case $number in
+1)
+echo "the month is Jan.";;
+2)
+echo "the month is Feb.";;
+3)
+echo "the month is Mar.";;
+4)
+echo "the month is Apr.";;
+*)
+echo "the num is wrong !";;
+esac
+
+例如：
+#!/bin/bash
+echo -n "Please input yes | no:"
+read var
+case $var in
+yes)   ＃因为linux严格区分大小写，如果输入YES,将无法匹配，需要再添加一条条件语句。
+echo "you said yes,thanks";;
+no)
+echo "you said no,i feel bad."
+esac
+
+
+
+
+多条件语句，例如：
+#!/bin/bash
+echo -n "Please input yes | no:"
+read var
+case $var in
+yes | YES | Yes | Y | y)
+echo "you said yes,thanks";;
+no | NO	| No | n | N)
+echo "you said no,i feel bad."
+esac
+
+例如：
+#!/bin/bash
+#
+case $1 in
+hello)  #条件一
+echo "hello! How are you?"
+nihao) ＃条件二
+echo "ni hao"
+*)#条件三，默认不匹配上面的二个条件，自动匹配这个默认的。
+echo "Usage ./scriptname {hello|nihao}"
+exit 1
+esac
+
+
+
+
+简单for循环(详见：test6.sh)
+
+for循环基本格式
+for var in list
+do
+echo "list"
+done
+
+list获取方法：
+直接列表
+例如：
+命令行：
+for name in tom jerry zhangsan lisi
+>do
+>echo "hello $name"
+>done
+脚本中：
+#!/bin/bash
+#
+for name in {tom,jerry,zhangsan,lisi}
+do 
+echo "hello! $name"
+done
+
+从变量读取
+#!/bin/bash
+list="tom jerry zhangsan lisi"
+for var in $list
+do
+echo "hello $list"
+done
+
+从命令读取
+vim list.txt
+
+#!/bin/bash
+for var in `cat /root/list.txt`
+do
+echo "hello $var"
+done
+
+for循环分隔符
+默认分割符
+空格\s
+制表符tab
+换行符\n
+#在脚本中添加
+IFS＝$";"
+
+从目录中读取
+例如：
+#!/bin/bash
+for var in ~/shellscript/* (t*)(`ls ~/shellscript`)
+do
+echo "$var"
+done
+
+
+for循环语句结构
+#!/bin/bash
+for ((i=1;i<=10;i++))
+do
+echo "test number is $i"
+done
+或
+#!/bin/bash
+for ((i=1，j=10;i<=10;i++,j--))
+do
+echo "test number is $i"
+done
+
+
+
+例如：
+#!/bin/bash
+#
+for i in {1..5}
+
+do
+  useradd acc$i
+  echo 123456 | passwd  acc$i --stdin
+done
+
+或
+#!/bin/bash
+declare -i s #声明s是整形的变量
+for (( i=1; i<=100; i=i+1 ))
+do
+s=s+i 
+done
+echo "the count is ==> $s"
+
+
+
+
+
+while循环
+结构
+当什么什么条件成立时执行语句
+while test command
+do
+commands
+done
+
+例如：
+var=1
+while [ $var -lt 10 ]
+do
+echo "$var"
+var=$[ $var+1 ] #expr命令格式，当var小于10时，则执行加1操作。
+done
+
+例如
+#!/bin/bash
+declare -i i
+declare -i s
+while [ "$i" != "101" ]
+do
+s=s+i
+i=i+1
+done
+echo "the count is $s"
+
+until循环
+当什么什么条件成立时结束语句
+例如：
+var=1
+until [ $var -eq 10 ]
+do
+echo "$var"
+var=$[ $var+1 ] #expr命令格式，当var小于10时，则执行加1操作。
+done
+
+或
+#!/bin/bash
+declare -i i
+declare -i s
+until [ "$i" = "101" ] ＃直到$i等于101
+do
+s=s+i
+i=i+1
+done
+echo "the count is $s"
+
+
+循环嵌套
+for
+例如：
+#!/bin/bash
+for ((i=1;i<=3;i++))
+do
+echo "outside loop:$i"
+for((j=1;j<=3;j++))
+do
+echo "inside loop:$j"
+done
+done
+
+while
+例如：
+i=1
+whlie [ $i -le 3 ]
+echo "outside loop:$i"
+for((j=1;j<=3;j++))
+do
+echo "inside loop:$j"
+done
+i=$[ $i+1 ]
+done
+
+循环控制
+break 跳出循环
+例如：
+#!/bin/bash
+for ((i=1,i<=10;i++))
+do
+if [ $i -eq 5 ]
+then
+	break;
+fi
+echo "$i"
+done
+
+
+continue 继续循环
+例如：
+!/bin/bash
+for ((i=1,i<=10;i++))
+do
+if [ $i -eq 5 ]
+then
+	continue;
+fi
+echo "$i"
+done
+
+
+实战应用
+#!/bin/bash
+echo -n "please input a user name:"
+read uname
+IFS=$'\n' ＃所有的用户数据是以行为分隔的
+for row in `cat /etc/passwd` ＃提取每一行的数据
+do
+IFS=$':' ＃以：为分隔
+i=1  ＃第一段
+is_target=0 ＃每次循环的开始进行初始化
+for value in $row ＃将每一段数据命名为 value
+do
+if [ $i -eq 1 ] && [ $value = $uname ]
+then
+is_target=1 ＃为了能够让用户知道已输出数据，要使用is_target进行初始化
+fi
+i=$[ $i+1 ] ＃在每一次循环对i进行计数
+if [ $is_target -eq 1 ] ＃找到了需要找的数据行
+then
+echo $value
+fi
+if [ $is_target -eq 1 ] ＃找到了需要找的数据行
+then
+echo $row ＃再输出整行数据信息
+break; ＃程序逻辑结束，终止循环。
+fi
+done
+done
+
+
+
+
+shell编程中的函数
+什么是函数？
+程序逻辑的封闭
+代码的复用
+一个位置修改，多个位置使用
+
+基本的脚本函数
+函数（function）功能
+函数是可以命名的，并在代码中任何位置征用的代码块。
+语法：
+
+#!/bin/bash
+#
+function func1 {  #function是关键字，func1是函数的名字，此为命名方法一
+	echo 'this my first function'
+}
+
+func2() { ＃func2是函数的名字，此为命名方法二
+	echo 'this my another function'
+}
+func1 ＃调用此函数
+func2 ＃调用此函数
+
+函数的返回值
+退出码
+echo "$?"
+成功时为0，不成功，则为其他值。
+
+return命令
+因为函数在执行成功后，返回的值为0，不成功则返回值为其他数值，如果想让其按编程者要求进行返回值，可以使用return命令。
+例如：
+#!/bin/bash
+#
+function func1 {  #function是关键字，func1是函数的名字，此为命名方法一
+	echo 'this my first function'
+	
+}
+func1
+echo "$?"
+func2() { ＃func2是函数的名字，此为命名方法二
+	echo 'this my another function'
+        func3 #添加一个不能找到的func3，出现执行错误。
+        return 20 #退出的状态码，必须为0－255之间的数值。
+}
+func2
+echo "$?" ＃必须立即执行
+
+函数输出
+#!/bin/bash
+#
+function func1 {  #function是关键字，func1是函数的名字，此为命名方法一
+	echo 'this my first function'
+	
+}
+func1
+
+value=func1
+echo $value
+
+
+
+
+
+shell编程中的函数变量
+#!/bin/bash
+add() {
+	if [ $# -eq 1 ];then
+	 result=$[ $1+$2 ]
+	echo $result
+	else
+	echo "abc"
+	return
+}
+
+
+shell函数库
+包涵了一系列的函数封装，是函数的更上一级的概念
+包含可重用函数的脚本文件，是以脚本文件的形式存在的
+
+创建一个函数库文件(命名为：calc.sh)
+#!/bin/bash
+add() {
+local result=0
+if [ $# -eq 2 ];then
+result=$[ $1 +$2 ]
+echo $result
+else
+echo 'need 2 number params'
+return 1
+fi
+}
+sum() {
+local result=0
+for var in $@
+do
+result=$[ $result + $var ]
+done
+echo $result
+}
+
+调用函数库文件
+source filepath
+或
+. filepath
+
+在命令行中：
+source calc.sh
+add 12 23
+结果：35
+在脚本中：
+#!/bin/bash
+
+source ./calc.sh
+echo `add 12 23`
+
+自动调用(定义全局函数库)
+vim .bashrc
+添加
+if [  -f /root/calc.sh ]
+. /root/calc.sh #.为source
+命令行验证
+add 12 23
+
+
+
+
+
+
+
+
+
+sed基础应用
+sed介绍
+sed是一个“非交互式的”面向字符流的编辑器，是linux操作系统中最重要的自动化运维工具之一。
+在一个或多个文件上自动实现编辑操作
+编写转换程序
+实现自动华运维
+
+
+
+难点：
+工作方式
+正则表达式
+与shell的配合工作
+编写技巧
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+sed原理
+模式空间与缓存空间
+模式空间（pattern space）：处理文件中一行内容的临时缓冲区，处理完这一行后就会将模式空间中的内容打印到标准版输出并自动清空该空间中的内容，该空间是sed的主要活动空间。
+缓存空间（hold space）：另一个缓冲区，不会自动清空也不会主动打印，主要是用于sed高级命令处理，该空间是sed的辅助空间。需要使用命令打开。
+
+工作流程
+                     流编辑器，一次处理一行。
+文件－－－－－－－－－－－>模式空间－－－－－－－－－>输出内容
+       一次传入一行       缓存空间
+
+
+
+
+
+
+
+
+
+
+
+
+sed正则表达式
+正则表达式基础
+元字符：
+.匹配除换行符以外的任意字符
+\w匹配字母、数字、下划线或汉字
+\s 匹配任意的空白符
+\d 匹配数字
+\b 匹配单词的开始或结束
+^匹配字符串的开始
+$匹配字符串的结束
+\转意字符
+例如：
+a.c 可以匹配到的a任意c
+a\wc 可以匹配a1c a_c abc
+
+限定符：
+＊ 重复0次或更多次
+＋重复1次或更多次
+？重复0次或1次
+｛n｝重复n次
+{n,}重复n次或更多次
+{n,m}重复n次到m次
+［1－9］指定范围的数字
+例如：
+a*c 表示前面的可以重复0次或无数次，ac aac aaaaac c(因为a可以是0次)
+a+c 最少匹配到ac
+a{9}c 匹配9个a
+
+反义：
+\W匹配任意不是字母、数字、下划线、汉字的字符
+\S匹配任意不是空白符的字符
+\D匹配任意非数字的字符
+\B匹配不是单词开头或结束的位置
+[^x]匹配除了x以外的任意字符
+[^aeiou]匹配除了aeiou这几个字母以外的任意字符
+例如：
+a[^b]c,可以匹配到a1c,a c等
+
+捕获：
+（exp） 匹配exp，并捕获文本到自动命名的组里
+(?<name>ex)匹配ex，并捕获文本到名称为name的组里
+(?:exp) 匹配exp，不捕获匹配的文本，也不分配组号
+
+零宽断言  #基本的sed无法使用，做为了解。
+(?=exp)匹配exp前面的位置
+(?>=exp)匹配exp后面的位置
+(?<!exp)匹配后面跟的不是exp位置
+(?<!exp)匹配前面不是exp的位置
+
+贪婪与懒惰  #sed不支持懒惰，默认为贪婪模式
+*?重复任意次，但尽可能少重复
++?重复1次或更多次，但尽可能少重复
+??重复0次或1次，但尽可能少重复
+{n,m}?重复n到m次
+{n,}?重复n次以上
+
+sed使用正则表达式时要注意shell特殊字符冲突问题，比如\(exp\)
+sed中不支持\d和反义中的\w等表达方式
+
+
+
+sed基础命令
+命令格式
+sed [options] [commands] filename
+commands格式
+［address-range］ [pattern-to-match] [sed-command]
+例如：sed -n '5,8p' passwd 
+
+
+
+
+
+
+
+#5,8行，p打印操作，打印出passwd文件中的第5至第8行内容
+
+
+
+查找
+查找passwd文件中的bash结尾的行
+sed -n '/bash$/p' passwd #-n表示抑制输出，/bash$/把正则表示式使用//封闭起来，p打印出来，passwd是文件名。
+如果不使用-n选择，都会按sed工作流程操作一遍，输入一行打印一行。
+
+删除
+删除以test开头的行
+sed  -i '/^test/d' /etc/passwd #-i表示修改原文件内容，如果不加此选择，则不会修改原文件
+sed  -i '/hello/d' /etc/passwd
+
+打印
+打印passwd文件中的第3到第8行内容
+
+sed -n '3,8p' /etc/passwd #-n表示抑制输出
+
+
+
+
+
+提取、替换
+提取passwd文件中有登录shell的用户名及其家目录
+sed -n '/bash$/s/\(\w\+\):.*/\1/p' /etc/passwd
+
+
+
+#找到以bash$结尾的行，s提取，\w任意字母，+多个字符，()表示提取内容，以：为分隔，.*表示任意字符，\1表示小括号，p打印,-n进行输出抑制
+
+
+sed -rn '/bash$/s/(\w+):.*/\1/p' /etc/passwd
+
+
+
+#-r加此选项不需要把小括号进行转意。
+
+sed -rn '/bash$/s/(\w+):\w:[0-9]+:[0-9]+:.*:(.*):.*/\1 \2/p' /etc/passwd
+
+
+#-r加此选项不需要把小括号进行转意，-n输出抑制，s提取，(\w+)提示内容，\w匹配字符，［0－9］匹配数字，.*匹配任意字符，(.*)提取内容，\1第一个小括号，\2第二个小括号，p打印，/etc/passwd文件名。
+
+
+将passwd所有nologin替换为uplooking
+sed -i 's/nologin/uplooking/g' /etc/passwd #加g是把本行所有的匹配字符进行替换。
+
+
+sed -i '2a\loveable' /home/passwd
+sed -i 's/(love)able/\1rs/p' /home/passwd #love被提取，并标记为1，所有的loveable都被替换，并打印。
+
+
+sed -n 's/(love)able/\1rs/p' /home/passwd
+sed -n '3p' /home/passwd
+
+
+
+
+
+删除passwd文件中的nologin结尾的行
+sed -i '/no.*/d' passwd
+删除第二行
+sed '2d' /home/passwd
+删除第二行到尾行
+sed '2,$d' /home/passwd
+删除尾行
+sed '$d' /home/passwd
+
+
+
+插入、追加、更改
+在passwd文件中第5行上插入一个hello world
+sed -i '5i\hello world' /etc/passwd #-i修改，第5行，i修改，\hello world内容。
+在passwd的第5行下追加一行hello world
+sed -i '5a\hello world' /etc/passwd #-i修改，第5行下面，a追加，\hello world内容。
+在passwd的第5行修改为hello world
+sed -i '5c\hello world' /etc/passwd #把第5行修改为hello world最
+
+在最后一行追加
+sed -i '$a\hello world' /etc/passwd
+在第一行前面加上字符串
+sed -i '1i\nihaoma?' passwd
+
+转换、退出
+将abcdef变成大写字母
+echo "abcdef" | sed 'y/abcdef/ABCDEF/'
+echo "fedcba" | sed 'y/abcdef/ABCDEF/'
+
+打印第一行至第五行
+sed '5q' /etc/passwd #q为退出。
+
+输出文件并添加行号
+sed '=' passwd | sed 'N;s/\n/\t/'
+
+统计文件中的行
+sed -n '$=' httpd.conf
+
+
+apache服务器配置
+
+sed -i 's/#NameVirtualHost/NameVirtualHost/' httpd.conf
+
+sed -ie '1003,1009{H};$G' httpd.conf
+
+sed -i '1011i\<VirtualHost *:80>' httpd.conf
+
+sed -i '$a\hello world' /etc/passwd
+
+sed -i '$a\<VirtualHost *:80>' httpd.conf
+
+
+seq 10 | sed -n 'p;n' 输出奇数行
+
+seq 10 | sed -n 'n;p' 输出偶数行
+
+seq 10 | sed '5q'  输出前5行
+
+seq 10 | sed ':a;$q;N;6,$D;ba' 输出后5行
+
+
+
+sed自动化实战应用
+一键部署httpd服务器脚本
+要求：一键部署httpd服务器虚拟主机。
+1、检查服务器是否安装httpd服务
+ rpm -qa | grep httpd
+ service httpd status
+ 
+
+2、如没有安装，使用yum完成httpd服务安装部署
+  yum
+  mount /dev/cdrom /mnt
+  touch /etc/yum.repos.d/localyumser.repo
+  sed -i '$a\[localyumser]' /etc/yum.repos.d/localyumser.repo
+  sed -i '$a\name=local yum ser 2016.1.14'
+  sed -i '$a\baseurl=file:///mnt'
+  sed -i '$a\enabled=1'
+  sed -i '$a\gpgcheck=0'
+  yum clear all
+  yum makecache
+
+3、修改httpd配置文件
+
+4、启动httpd服务
+
+5、访问
+
+
+sed -i 's/logwtmp/# logwtmp/' /etc/pptpd.conf
+
+配置
+sed -i 's/logwtmp/# logwtmp/' /etc/pptpd.conf
+localip=$（ifconfig eth0 | grep "inet addr:" | sed -rn 's/\s+inet addr:([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}).*/\1/p'）
+
+localip=`ifconfig eth0 | grep "inet addr:" | sed -rn 's/\s+inet addr:([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}).*/\1/p'`
+
+sed -i \$a"$localip  www.baibai.com" /etc/hosts
+
+
+
+
+
+ifconfig eth0 | grep "inet addr:" | cut -d: -f2 | cut -d"　"　-ｆ1
+
+
+
+
+ifconfig eth0 | grep "inet addr:" | awk -F'[ :]+' '{print $4}' #[ :]+多个空格或：做为分隔符的，打印第4列。
+
+
+ifconfig eth0 | grep "inet addr:" | sed -rn 's/\s+inet addr:([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}).*/\1/p'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+grep 文本过滤器
+    grep "查找部分" input_file1,input_file2,......
+
+sed 流编辑器
+    sed '命令/模式/修饰符' input_file1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+awk报告生成器
+    三个作者的名字首字母组合
+    从文本文件中抽取所需要的内容，并生成报告。格式化以后显示。
+
+awk [选项] ‘指定格式化信息’ file1,file2,.....
+awk [选项] ‘模式 {action item1,item2}’ file1,file2,....
+
+
+默认按行处理
+模式：匹配到的内容才处理{}，匹配到后才处理，一般处理都是打印出来。
+打印可以自定义格式，比如位宽，左、右对齐，打印命令：print,printf(可以定义格式)
+awk：基本处理机制：一次从文件中抽取一行文本，awk将对抽取出来的内容进行切片，按分隔符进行切割。例如：this is a test,会被切成四片，第一片：this,第二片：is,第三片：a,第四片：test,然后在awk内容，可以使用一个变量来引用，这个变量类似于bash中的位置参数变量，$1指第一个片段，以此类推。但$0指是文本全部内容。
+awk分片最主要是目的是为了输出，但是输出就需要相应的格式，比如要有分隔符（默认为空格）等。
+
+例如：
+vim test1.txt
+this is a test
+
+使用awk处理：
+awk '{print $1}' test.txt
+awk '{print $0}' test.txt
+awk '{print $1,$2}' test.txt
+以上的print都属于action，都需要括在花括号当中，并使用单引号引号引起来。
+
+
+
+
+
+
+
+
+
+
+
+
+使用print打印输出时，把$1等认为是打印的项目或条目
+print的使用格式：
+print item1,item2,...
+各项目之间使用逗号隔开，各项目与print之间使用空格分隔。
+输出的item可以为字符串或数值，当前记录的字段（如$1）、变量或awk表达式，数值会先换为字符串，再输出。
+print命令后置的item可以省略，此时其功能相当于print $0，因此，如果想输出空白行，则需要使用print ""
+例如：
+    awk -F: '{print $1,$2,$3}' /etc/passwd
+
+    awk 'BEGIN{print "line one\nline two\nline three"}' #\n是换行符，回车。
+
+    awk '{print $1,"hello",$2,$3}' test.txt
+
+
+
+
+
+要不想使用空格做为默认指定的分隔符，就需要修改到option（选项），awk有很多选项，但是常用的指定分隔符的选项为：
+－F，例如：-F:此处指定了冒号做了分隔符。
+如果不指定分隔符，对于某些文件来讲一行内是没有分隔符的，而awk每次处理一行，这样显示的就是整行内容。
+
+还可以使用以下格式指定输出分隔符
+
+awk 'BEGIN{OFS="#"}{print $1,$2}' test.txt #OFS为指定输出分隔符。BEGIN是模式，可以不在后面添加输出文件，一般演示使用。
+
+
+awk变量：内置变量之记录变量
+FS field seperator：默认是空白字符。指定读取文本时的字段分隔符。
+例如：
+
+RS record seperator：默认为换行符。输入文本信息所使用分隔符。
+test.txt内容：
+111 222
+
+333 444
+
+
+555 666
+例如：awk 'BEGIN{RS=""}{print $0}' test.txt
+
+
+OFS output filed s:输出字段分隔符
+例如：awk 'BEGIN{OFS="#"}{print $0}' test.txt  #内容：this is a test 
+
+ORS output row :输出行分隔符
+
+
+awk变量：内置变量之数据变量：
+NR    the number of input record:awk命令所处理的记录数，如果有多个文件，这个数量会把处理的多个文件中行统一计数
+      例如：awk '{print NR}' test.txt  /etc/passwd #把两个文件中的行数都做统一计数。
+NF   number of field:当前记录的field个数，正在处理的当前行有多少个字段的。
+     例如：awk -F: '{print NF}' test.txt ＃显示数字为当前行的字段数。
+	  awk -F: '{print $NF}' test.txt ＃$NF当前正在处理行的最后一个字段。
+
+FNR  与NR不同的是，FNR用于记录正处理的行,是当前这一文件中被总共处理的行数。
+＊＊＊假如awk处理了两个文件，第一个文件已经处理了100行了，第二个文件正在读取第21行，则NR为121，FNR为21.
+     例如：awk '{print FNR}' test.txt /etc/passwd #每个文件各自计数。
+
+
+awk变量：自定义变量
+允许用户自定义变量，以便在程序代码中使用，变量名规则与大多数程序语言相同，只能使用字母，数字和下划线，且不能以数字开头，变量名称区分大小。
+
+在脚本中赋值变量
+给变量赋值使用赋值语句进行，例如：
+
+awk 'BEGIN{test="hello awk";print test}'
+
+在命令行中使用赋值变量
+可以在脚本外为变量赋值，并在脚本中进行引用，例如：
+awk -v test="hello awk" 'BEGIN{print test}' #-v定义变量；打印test变量值，不需要加$。如果加了$表示成字段了，并且不正确。
+
+
+
+
+
+
+
+
+printf
+printf命令的使用格式
+awk [option]  {print}
+printf  format(格式),item1,item2
+要点：
+需要指定输出格式(format)
+format用于指定每个item的输出格式
+不会自动打印换行符
+
+format格式的指示符都以%开头，后跟着一个字符，如下： #指示符是用来明确告诉输出应该遵循什么样的显示效果
+%c显示字符的ASCII码
+例如：awk 'BEGIN{printf "%c","a"}'
+%d，％i：十进制数
+%s：显示字符串
+%f:显示浮点数
+%g：科学表示法显示浮点数
+%u：无符号整数
+%%：显示%自身
+
+
+每一个指示符都还可以使用修饰符：
+%-c：表示左对齐
+n：表示显示宽度，本来一个字符只占一个宽度，加上n后，就可以显示多少位的宽度。
+例如：
+awk '{printf "%s\n",$1}' test.txt #默认右对齐，左侧没有字符串的宽度
+awk '{printf "%10s\n",$1}' test.txt ＃s前面加10表示，加10个字符串的宽度，左边会有6个空白字符。
+awk '{printf "%－10s\n",$1}' test.txt ＃10前面加－表示左对齐，右边会有6个空白字符。
+awk '{printf "%－10s,%-10s\n",$1,$3}' test.txt #两个字符串$1,$3,中间间隙会变大，不想看到s后面的,，可以直接删除掉；格式与格式之间不需要使用逗号分隔。
+awk '{printf "%－10s%-10s\n",$1,$3}' test.txt ＃格式之间的逗号删除了。
+例如：以科学计数法显示系统中用户的id
+awk -F: '{printf "%5d",$3}' /etc/passwd #5d 表示每一个编号距前一个位置是5位宽，此为右对齐。
+awk -F: '{printf "%5d\n",$3}' /etc/passwd
+awk -F: '{printf "%-5d\n",$3}' /etc/passwd #左对齐
+
+
+-指示符：左对齐
+显示数值符号
+
+
+
+
+
+awk的操作符
+算数操作符
+
+
+字符串操作符
+
+
+
+赋值操作符
+
+
+
+布尔值
+
+
+比较操作符
+
+
+
+表达式的逻辑关系符
+
+&&与
+||或
+
+
+条件表达式
+简化版的2分支条件语句
+
+
+函数调用
+
+
+
+
+
+
+
+＊＊＊＊＊＊awk模式＊＊＊＊＊＊＊＊＊＊＊＊
+
+pattern (模式)
+常见的模式类型
+1、正则表达式，格式为/正则表示式/ 例如：awk -F: '/^r/{print $1}' /etc/passwd
+2、表达式     例如： awk -F: '$3>=500{print $1,$3}' /etc/passwd
+awk -F: 'BEGIN{print "username      id"} $3>=500{printf "%-10s%10s\n",$1,$3}' /etc/passwd
+
+
+
+
+
+3、数学运算 例如： awk -F: '$3+1>=500{print $1,$3}' /etc/passwd
+4、模式匹配 例如： awk -F: '$7~"bash$"{print $1,$7}' passwd
+                awk -F: '$7!~"bash$"{print $1,$7}' passwd 
+awk -F: 'BEGIN{print "username    shell"} $7~"bash$"{printf "%-15s%-20s\n",$1,$7}' /etc/passwd
+
+5、指定匹配范围的 例如：awk -F: '/^r/,/^m/{print $1,$3}' /etc/passwd #以r开头的行，到m开头的行。
+6、BEGIN/END模式：仅在awk命令执行前进行一次或结束前运行一次
+  例如：
+awk -F: '{printf "%-10s%-10s%-20s\n",$1,$3,$7}' /etc/passwd
+
+awk -F: 'BEGIN{print "user    id    shell"}{printf "%-10s%-10s%-20s\n",$1,$3,$7}' /etc/passwd
+
+awk -F: 'BEGIN{print "user    id    shell"}{printf "%-10s%-10s%-20s\n",$1,$3,$7}END{print "End of report"}' /etc/passwd
+
+7、空模式：对文件中的每一行都要做处理
+例如：awk -F: '{printf "%-10s%-10s%-20s\n",$1,$3,$7}' /etc/passwd
+
+
+＊＊＊＊＊＊awk动作＊＊＊＊＊＊＊＊＊＊
+action(动作)
+常用的动作有：
+1、print,pintf
+2、表达式
+3、控制语句：if,while，函数等
+4、输入语句
+5、输出语句
+awk -F: '{if ($1=="root") print $1,"admin";else print $1,"common user"}' passwd
+awk -F: '{if ($1=="root") printf "%-15s:%s\n",$1,"admin"; else printf "%-15s:%s\n",$1,"common user"}' passwd
+awk -F: -v sum=0 '{if ($3>=500) sum++}END{print sum}' passwd ＃显示UID号大于500的用户有多少个
+
+awk -F: '{i=1;while(i<=3) {print $i;i++}}' passwd
+#声明i变量，
+
+awk -F: '{i=1;while (i<=NF) { if (length($i)>=4) {print $i};i++}}' /etc/passwd
+#声明i循环体控制变量，while循环，i<=NF,if如果length 每个字段中循环$i，打印出$i即可。每个字段大于4的，都提取出来。
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+awk基础编程
+awk介绍
+概念：是类unix操作系统中非常优秀的数据及文本处理工具，它是一种编程语言。
+特点：功能强大，完整语法，进程控制，简短高效
+作用：自动化运维，文本处理
+
+awk基本语法
+书写格式
+命令行格式：awk -F: '{print $1}' /etc/passwd
+文本格式：#!/bin/bash
+        BEGIN{ FS=":"}
+        {print $1}
+变量
+常用的内置变量
+$0 表示所有行内容
+$1-$n 表示输入输出指定行的内容
+例如：awk -F: '{print $1}' /etc/passwd #显示一行内容
+     awk -F: '{print $0}' /etc/passwd ＃显示全部内容
+FS   分隔符（默认为空格）读取文件时，所使用字段分隔符
+例如：awk 'BEGIN{FS=":"}{print $1}' /etc/passwd 
+OFS 输出分隔符 字段
+例如：awk 'BEGIN{OFS="#"}{print $1,$2}' /etc/passwd
+例如：awk 'BEGIN{OFS=":"}{print $1,$2,$3,$4}' /etc/passwd
+例如：awk 'BEGIN{OFS=":"}{print $1,"hello",$2}' /etc/passwd
+RS 输入记录的分隔符（默认为空格）#输入文本信息所使用的换行符
+例如：awk 'BEGIN{RS=":"}{print $0}' /etc/passwd #指定分隔符为：,以：换行处理。 
+NF 显示文件共有多少列，数量,字段数量
+例如：awk -F: '{print NF}' /etc/passwd
+NR 行号
+例如：awk -F: '{print NR":" $0}' /etc/passwd
+
+
+
+控制语句
+1、if-else
+语法：if(条件)（then:body）else{else:body}
+awk -F: '{if ($1=="root") print $1,"admin";else print $1,"common user"}' passwd
+
+
+
+
+awk -F: '{if ($1=="root") printf "%-15s:%s\n",$1,"admin"; else printf "%-15s:%s\n",$1,"common user"}' passwd
+
+
+
+awk -F: -v sum=0 '{if ($3>=500) sum++}END{print sum}' passwd
+
+
+
+
+2、while
+awk -F: '{i=1;while(i<=3) {print $i;i++}}' passwd ＃循环字段，进行处理，大于3的字段显示出来。
+
+
+do-while ＃先执行
+awk -F: '{i=1;do {print $i;i++}while(i<=3)}' passwd
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+3、for
+awk -F: '{for(i=1;i<=3;i++)print $i}' passwd
+awk -F: '{for(i=1;i<=NF;i++) {if (length($i)>=4){print $i}}}' passwd
+
+
+
+
+
+
+
+
+
+
+case
+语法
+switch (表达式) ｛case value or /｝
+
+
+循环控制
+
+break continue next
+
+
+实战内容：
+1
+awk -F: '{shell[$NF]++}END{for(A in shell) {print A shell[A]}}' passwd
+ATe
+2、统计网络连接状态
+netstat -tan | awk '/^tcp/{STATE[$NF]++}END{for (S in STATE) {print S,STATE[S]}}'
+
+3、统计网站访问连接数
+awk '{count[$1]++}END{for (ip in count) {printf "%-20s:%d\n",ip,count[ip]}}' /var/log/httpd/access_log
+
+
+
+
+
+
+
+
+
+
+
+
+自定义及外部变量
+awk -v host=$HOSTNAME 'BEGIN{print host}' #原本需要指定文件才可以执行，现加上BEGIN后，可以直接执行。
+awk -v host=uplooking 'BEGIN{pring host}' #指定主机名
+
+
+
+操作符
+关系操作符：<,>,<=.>=,==,!=,~(是否匹配),!~（不匹配）
+～使用
+例如：awk -F: '$7 ~ /^\/bin{print $0}' /etc/passwd #如果第七列是以/bin开头的，～表明第七列是否匹配后面的正则表达式内容
+例如：awk -F: '$7 ！~ /^\/bin{print $0}' /etc/passwd #如果第七列是以/bin开头的，！～表明第七列不匹配后面的正则表达式内容
+布尔操作符：&& || !
+
+
+输出
+print直接打印，打印字符等
+例如：awk -F: '{print $1" : "$2}' /etc/passwd
+printf格式化打印
+例如：awk -F: '{printf("%s : %s\n",$1,$2)}' /etc/passwd #\n换行，第一个%s是$1,第二个%s是$2
+     awk -F: '{printf("Hello %s\n",$1)}' /etc/passwd
+
+
+
+awk流程控制
+条件
+if语句
+例如：
+命令行：seq 10 ＃准备10个数
+命令行：seq 10 | awk '{if($0%2==0){print "ok"}else{print "no"}}'
+命令行：awk -F: '{if($NF=="/bin/bash"){print $0}}' /etc/passwd
+
+循环
+while语句
+例如：在每一个段前加序号
+awk -F: '{i=1;while(i<=NF){printf(" %d:%s ",i,$i);i++}{print " "}}' /etc/passwd
+#定义一个变量i，让i等于1,i<=NF指的是i小于或等于整个字段数的时候，printf格式化输出，先输出%d是指序号，%s指的是字段的值。
+
+for语句
+例如：awk -F: '{for(i=1;i<=NF;i++){printf(" %d:%s ",i,$i)}{print " "}}' /etc/passwd
+
+数组
+统计/etc/passwd文件中相同字符出现的次数。
+awk -F: '{a[$NF]++}END{for(i in a){print i":"a[i]}}' /etc/passwd
+#a是定义的数组名，$NF是指数组里面的值，END结束，
+key value a[$NF] a['/bin/bash']=1 a['/sbin/nlogin']=1 a['/sbin/nologin']=1+1=2
+
+定义或添加数组元素
+awk 'BEGIN{a[5]="jack";print a[5]}'
+
+
+
+awk 'BEGIN{a[5]="jack";a["name"]="lilei";print a[5],a["name"]}'
+awk 'BEGIN{a[5]="jack";a["name"]="lilei";for(i in a){print i":"a[i]}}'
+awk 'BEGIN{a[5]="jack";a["name"]="lilei";delete a["name"];for(i in a){print i":"a[i]}}'
+
+awk函数
+
+awk实战
+
+
+
+
+
+
+
+
+
+
+
+
+

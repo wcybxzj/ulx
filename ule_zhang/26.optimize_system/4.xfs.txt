@@ -1,0 +1,75 @@
+实验1:
+yum install xfsprogs -y
+mkdir /xfs
+mkfs.xfs /dev/sdb1
+mkfs.xfs -l logdev=/dev/sdb2 /dev/sdb1 -f
+mount -o logdev=/dev/sdb2 /dev/sdb1 /xfs
+
+===============================================================
+实验2:
+pvcreate /dev/sdb1 /dev/sdb2 
+vgcreate vgxfs /dev/sdb2 /dev/sdb1
+lvcreate -l 25 -n lvxfs vgxfs
+mkfs.xfs /dev/vgxfs/lvxfs 
+mount /dev/vgxfs/lvxfs /xfs/
+echo 123 > /xfs/1.txt
+
+扩容:
+lvextend -l +100%FREE /dev/vgxfs/lvxfs 
+xfs_growfs /xfs/
+umount /xfs
+xfs_repair /dev/vgxfs/lvxfs 
+mount /dev/vgxfs/lvxfs /xfs/
+
+umount /xfs
+lvremove /dev/vgxfs/lvxfs
+pvremove /dev/sdb1 /dev/sdb2
+mkfs.xfs -l logdev=/dev/sdb2 /dev/sdb1
+mount -o logdev=/dev/sdb2 /dev/sdb1 /xfs
+for FILE in file{0..3}; do dd if=/dev/zero of=/xfs/${FILE} bs=4M count=100; done
+filefrag /xfs/file*
+xfs_fsr -v
+
+修复:
+umount /xfs
+xfs_repair -n -l /dev/sdb2 /dev/sdb1
+
+================================================================
+备份:
+xfsdump:
+-l:级别 全备份:0 增量备份:1-9
+-L:名称
+
+全量备份,周一的数据:
+yum install xfsdump -y
+mkfs.xfs /dev/sda1 -f
+mount /dev/sda1 /xfs/
+echo 1 > /xfs/Monday.txt
+xfsdump -L full -M dumpfile -l 0 - /xfs | xz > /tmp/xfs.0.xz
+xzcat /tmp/xfs.0.xz | xfsrestore - /back_xfs
+ll /back_xfs
+Monday.txt
+
+增量备份,周二的数据:
+echo 2 > /xfs/Friday.txt
+xfsdump -L full -M dumpfile -l 1 - /xfs | xz > /tmp/xfs.1.xz
+rm -rf /back_xfs/*
+xzcat /tmp/xfs.1.xz | xfsrestore - /back_xfs
+ll /back_xfs
+Friday.txt
+
+增量备份,周三的数据:
+echo 3 > /xfs/Wednesday.txt
+xfsdump -L full -M dumpfile -l 2 - /xfs | xz > /tmp/xfs.2.xz
+rm -rf /back_xfs/*
+xzcat /tmp/xfs.2.xz | xfsrestore - /back_xfs
+ll /back_xfs
+Wednesday.txt
+
+再次用level1做增量:
+rm -rf /back_xfs/*
+xfsdump -L my_diff -M dumpfile -l 1 - /xfs | xz > /tmp/xfs.diff.xz
+xzcat /tmp/xfs.diff.xz | xfsrestore - /back_xfs
+ll /back_xfs
+Friday.txt
+Wednesday.txt

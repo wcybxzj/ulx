@@ -1,0 +1,5 @@
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4 www.youku.com www.aiqiyi.com
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6 
+192.168.91.3 CA.uplooking.com
+192.168.91.11 web.uplooking.com
+192.168.91.12 client

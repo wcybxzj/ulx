@@ -1,0 +1,51 @@
+192.168.122.101 source.uplooking.com
+192.168.122.110 target1.uplooking.com
+192.168.122.102 target2.uplooking.com
+
+1.source:
+ll /proc/sys/fs/inotify
+-rw-r--r-- 1 root root 0 10-01 08:07 max_queued_events
+-rw-r--r-- 1 root root 0 10-01 08:07 max_user_instances
+-rw-r--r-- 1 root root 0 10-01 08:07 max_user_watches
+
+inotify-tools是用来监控文件系统变化的工具，因此必须安装在内容发布节点（数据源）
+tar xf inotify-tools-3.14.tar.gz 
+cd inotify-tools-3.14
+./configure && make && make install
+
+ssh-keygen
+ssh-copy-id -i target1.uplooking.com
+ssh-copy-id -i target2.uplooking.com
+ssh target1.uplooking.com date; ssh target2.uplooking.com date
+2015年 09月 29日 星期日 11:31:19 CST
+2015年 09月 29日 星期日 11:33:07 CST
+
+
+#!/bin/bash
+web1=192.168.122.110
+web2=192.168.122.102
+src=/var/www/html/
+dst=/var/www/html/
+
+vim  /root/rsync_inotify.sh
+inotifywait -mrq --format '%w%f' -e modify,delete,create,attrib $src | while
+read file
+do
+        if [ ! -e $file ];then
+                ssh $web1 rm -rf $file &>/dev/null
+                ssh $web2 rm -rf $file &>/dev/null
+        else
+                rsync -avz --progress ${file} root@${web1}:${file} &>/dev/null
+                rsync -avz --progress ${file} root@${web2}:${file} &>/dev/null
+        fi
+done
+
+chmod a+x /root/rsync_inotify.sh
+/root/rsync_inotify.sh &
+
+============================================================================
+2.target1 target2: 
+[root@web2 ~]# yum -y install rsync httpd
+[root@web3 ~]# yum -y install rsync httpd
+============================================================================
+3.source 上改数据查看在target1 和 target2上的变化

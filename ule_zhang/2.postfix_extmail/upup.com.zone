@@ -1,0 +1,14 @@
+$TTL 7200
+@       IN SOA  dns1.upup.com. root. (
+                                        13      ; serial
+                                        1D      ; refresh
+                                        1H      ; retry
+                                        1W      ; expire
+                                        3H )    ; minimum
+        IN NS   dns1.upup.com.
+dns1    IN A    192.168.91.3
+www     IN A    192.168.91.3
+@       IN MX  5 mail.upup.com.
+mail    IN A    192.168.91.3
+@       IN A    192.168.91.3
+

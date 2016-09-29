@@ -1,0 +1,24 @@
+1.server:
+mkdir /root/code
+cd code
+git init
+
+2.client:
+git clone root@192.168.122.101:/root/code
+tou new.file
+git add *
+git commit -m "new"
+git push origin master
+rm  code
+git clone root@192.168.122.101:/root/code
+
+3.client: push出现问题
+server:
+vim /root/code/.git/config
+[core]
+        repositoryformatversion = 0
+        filemode = true
+        bare = false
+        logallrefupdates = true
+[receive]
+denyCurrentBranch = ignore

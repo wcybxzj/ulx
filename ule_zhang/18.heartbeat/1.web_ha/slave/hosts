@@ -1,0 +1,6 @@
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+10.10.10.222 nfs.uplooking.com
+10.10.10.101 html1.uplooking.com
+10.10.10.102 html2.uplooking.com
+

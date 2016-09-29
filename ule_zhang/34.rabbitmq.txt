@@ -1,0 +1,36 @@
+1.erlang:
+yum install build-essential openssl openssl-devel unixODBC unixODBC-devel make gcc gcc-c++ kernel-devel m4 ncurses-devel tk tc
+
+http://www.erlang.org/download/otp_src_19.0.tar.gz
+tar -xf otp_src_19.1.tar.gz
+./configure --prefix=/usr/local/erlang --with-ssl -enable-threads -enable-smmp-support -enable-kernel-poll --enable-hipe --without-javac
+make -j4  
+make install
+
+vim /erc/profile
+export PATH=$PATH:/usr/local/erlang/bin:/root/software/rabbitmq_server-3.6.3/sbin                                                                                                   
+ERL_HOME=/usr/local/erlang
+PATH=$ERL_HOME/bin:$PATH
+export ERL_HOME PATH
+
+2.rabbimq
+wget
+http://www.rabbitmq.com/releases/rabbitmq-server/v3.6.3/rabbitmq-server-generic-unix-3.6.3.tar.xz
+tar -xf rabbitmq-server-generic-unix-3.6.3.tar.xz
+cd ./rabbitmq_server-3.6.3
+cd sbin/
+
+启用web管理界面
+./rabbitmq-plugins enable rabbitmq_management
+http://localhost:15672/
+
+5.
+rabbitmq-server 
+rabbitmqctl status
+远程管理:
+rabbitmqctl -n rabbit@web11 status
+
+
+
+6.python
+easy_install pika

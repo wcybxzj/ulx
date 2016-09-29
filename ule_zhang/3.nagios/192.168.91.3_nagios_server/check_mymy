@@ -1,0 +1,18 @@
+#!/bin/bash
+port=`nmap 192.168.91.3 2>/dev/null | awk -F'/'  '$1~/\<3306\>/{print $1}'`
+if [ -z $port ]
+then
+	echo "mysql server is not running"
+	exit 2
+else
+	mysql -u nagios -p123 -h 172.16.80.3 -e "select * from test.test" 2>/dev/null
+	if [ $? -eq 0 ]
+	then
+		echo "mysql is running"
+		exit 0
+	else
+		echo "mysql is open the port 3306 but not select data"
+		exit 1	
+	fi
+fi
+

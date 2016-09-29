@@ -1,0 +1,2 @@
+SUBSYSTEMS=="scsi",ATTRS{vendor}=="my_v1",ATTRS{model}=="my_p1",SYMLINK+="mysan1"
+SUBSYSTEMS=="scsi",ATTRS{vendor}=="my_v2",ATTRS{model}=="my_p2",SYMLINK+="mysan2"

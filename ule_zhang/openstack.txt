@@ -1,0 +1,5 @@
+yum update
+
+create kvm centos7 template
+scp openstack_* to kvm template
+

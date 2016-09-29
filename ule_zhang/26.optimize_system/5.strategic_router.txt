@@ -1,0 +1,113 @@
+策略路由:
+实验目的:不同client 源ip,在网关上通过策略路使用不同的线路
+----------------------------------
+kvm3个虚拟交换机:
+192.168.122.0/24
+1.1.1.0/24
+2.2.2.0/24
+----------------------------------
+kvm:
+clinet1:
+eth0:192.168.122.101
+clinet2:
+eth0:192.168.122.102
+
+gw:
+eth0:192.168.122.103
+eth1:1.1.1.100
+eth2:2.2.2.100
+
+server1:
+eth0:1.1.1.2
+server2:
+eth0:2.2.2.2
+------------------------------------------------------
+------------------------------------------------------
+------------------------------------------------------
+client1&2:
+ip route del default
+ip route add 0/0 via 192.168.122.103
+ip r
+default via 192.168.122.103 dev eth0 
+------------------------------------------------------
+server1:
+ip route del default
+ip route add default via 1.1.1.100
+ip r
+
+server2:
+ip route del default
+ip route add 0/0 via 2.2.2.100
+ip r
+------------------------------------------------------
+gw:
+开启ipforward
+网关不要有默认路由
+route del default
+
+vim /etc/iproute2/rt_tables 
+	255     local
+	254     main
+	253     default
+	200     test2
+        100     test1
+	0       unspec
+
+ip route add default via 1.1.1.100 table test1
+ip route add default via 2.2.2.100 table test2
+ip route list table test1
+ip route list table test2
+
+使用防火墙的mangle表对不同的源地址数据包打标记区分
+iptables -t mangle -A PREROUTING -m  iprange  --src-range 192.168.122.1-192.168.122.101 -j MARK --set-mark 1
+iptables -t mangle -A PREROUTING -m  iprange  --src-range 192.168.122.102-192.168.122.200 -j MARK --set-mark 2
+
+在ip命令中调用防火墙的标记，不同的标记使用不同的路由表
+ip rule add fwmark 1 table test1
+ip rule add fwmark 2 table test2
+ip rule show
+0:	from all lookup local 
+32764:	from all fwmark 0x2 lookup test2 
+32765:	from all fwmark 0x1 lookup test1 
+32766:	from all lookup main 
+32767:	from all lookup default 
+-----------------------------------------------------
+-----------------------------------------------------
+测试1:
+client1:
+ping 1.1.1.2 结果:成功
+gw:
+请求走的eth0 eth1
+
+client2:
+ping 1.1.1.2 失败:gw回复Destination Host Unreachable
+gw:
+请求走的eth0 eth2
+-----------------------------------------------------
+测试2:
+client1:
+ping 2.2.2.2  结果:gw 返回Destination Host Unreachable
+gw:
+请求走的eth0
+
+client2:
+ping 2.2.2.2 结果:成功
+gw:
+请求走的eth0 eth2
+-----------------------------------------------------
+测试3:
+client1 & client2:
+ping 2.2.2.100  成功
+ping 1.1.1.100  成功
+-----------------------------------------------------
+测试4:
+client1&client2:
+ping 3.3.3.3  结果:gw 返回Destination Host Unreachable
+
+gw:
+请求走的eth0
+tcpdump -i eth0 -nn host 3.3.3.3
+tcpdump -i eth1 -nn host 3.3.3.3
+tcpdump -i eth2 -nn host 3.3.3.3
+
+3.3.3.3没此机器

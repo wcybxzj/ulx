@@ -1,0 +1,13 @@
+zabbix使用自己搭建的mail服务器做邮件报警
+192.168.91.4:zabbix-server mail-server
+192.168.91.3:zabbix-agent
+
+zabbix做media type
+SMTP server mail.robin.com
+SMTP helo mail.robin.com
+SMTP email zabbix@upup.com (发件人可以不存在)_
+
+zabbix通知的用户的email必须存在并且能被DNS解析
+robin@upup.com
+
+一个item可以有多个触发器

@@ -1,0 +1,14 @@
+
+TigerVNC Viewer for X version 1.1.0 - built Oct 15 2014 11:24:27
+Copyright (C) 1999-2011 TigerVNC Team and many others (see README.txt)
+See http://www.tigervnc.org for information on TigerVNC.
+
+Wed Jul 20 10:06:38 2016
+ CConn:       connected to host 172.16.80.245 port 5900
+ CConnection: Server supports RFB protocol version 3.7
+ CConnection: Using RFB protocol version 3.7
+
+Wed Jul 20 10:06:43 2016
+ TXImage:     Using default colormap and visual, TrueColor, depth 24.
+ CConn:       Using pixel format depth 24 (32bpp) little-endian rgb888
+ CConn:       Using Tight encoding

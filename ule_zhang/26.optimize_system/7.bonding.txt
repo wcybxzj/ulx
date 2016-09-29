@@ -1,0 +1,49 @@
+网卡绑定
+目的:解决线路或者网卡的单点故障
+==============================================================
+192.168.1.105 做bonding的机器
+
+2种主要模式:
+mode 0:负载均衡 带网卡健康检测如果ifdown wth0 只走健康的网卡eth1
+mode 1:主从
+==============================================================
+配置:
+vim /etc/modprobe.d/bond0.conf
+DEVICE=bond0
+IPADDR=192.168.122.105
+PREFIX=24
+ONBOOT=yes
+BOOTPROTO=none
+USERCTL=no
+BONDING_OPTS="miimon=50 mode=0"
+
+vim /etc/sysconfig/network-scripts/ifcfg-eth0
+DEVICE="eth0"
+BOOTPROTO=none
+ONBOOT="yes"
+TYPE="Ethernet"
+MASTER=bond0
+SLAVE=yes
+
+vim /etc/sysconfig/network-scripts/ifcfg-eth1
+DEVICE="eth1"
+BOOTPROTO=none
+ONBOOT="yes"
+TYPE="Ethernet"
+MASTER=bond0
+SLAVE=yes
+==============================================================
+负载模式:
+先查看负载均衡
+ping 192.168.122.106
+tcpdump -i eth0  -nn host 192.168.122.106
+tcpdump -i eth1  -nn host 192.168.122.106
+再查看健康检测
+ifdown eth0
+tcpdump -i eth0  -nn host 192.168.122.106
+tcpdump -i eth1  -nn host 192.168.122.106
+==============================================================
+主从模式:
+只有一个在工作挂了1个网卡另外一个上
+tcpdump -i eth0  -nn host 192.168.122.106
+tcpdump -i eth1  -nn host 192.168.122.106

@@ -1,0 +1,240 @@
+192.168.122.1 宿主机器:
+192.168.122.101 node1.robin.com
+192.168.122.102 node2.robin.com
+192.168.122.103 node3.robin.com
+192.168.122.104 node4.robin.com
+192.168.122.105 node5.robin.com
+192.168.122.106 node6.robin.com
+
+=======================================================================================================
+192.168.122.1:
+for ((x=1;x<=6;x++));do { scp  /etc/hosts node$x.robin.com:/etc/; }& done
+for ((x=1;x<=6;x++));do { scp /root/soft/hadoop/jdk-7u45-linux-x64.rpm node$x.robin.com:/root/; }& done
+for ((x=1;x<=6;x++));do { ssh node$x.robin.com rpm -ivh /root/jdk-7u45-linux-x64.rpm; }& done
+
+=======================================================================================================
+node1:
+/etc/profile:
+[root@node1 ~]# tail -3 /etc/profile
+export JAVA_HOME=/usr/java/jdk1.7.0_45
+export HADOOP_HOME=/opt/hadoop
+export PATH=$JAVA_HOME/jre/bin:$JAVA_HOME/bin:$HADOOP_HOME/bin:$PATH
+
+for((x=1;x<=6;x++));do { scp /etc/profile node$x.robin.com:/etc/; }& done
+for((x=1;x<=6;x++));do { ssh node$x.robin.com source /etc/profile; }& done
+for((x=1;x<=6;x++));do { ssh node$x.robin.com  java -version; }& done
+
+=======================================================================================================
+192.168.122.1:
+for((x=1;x<=6;x++));do {
+ssh node$x.robin.com " useradd hadoop; echo 'redhat'| passwd --stdin hadoop"; 
+}& done
+=======================================================================================================
+node1:
+ssh-keygen
+su - hadoop
+ssh-copy-id -i node1.robin.com
+for((x=2;x<=6;x++));do  scp -r ~/.ssh node$x.robin.com:~;  done
+所有节点可以直接ssh自己和任一节点,而且是以hadoop身份!!!!!
+=======================================================================================================
+配置zookeeper
+192.168.122.1:
+for((x=4;x<=6;x++));do { scp /root/soft/hadoop/zookeeper-3.4.6.tar.gz node$x.robin.com:/tmp; }& done
+
+node1:
+su - root
+for((x=4;x<=6;x++));do { 
+	ssh node$x.robin.com  "chown -R hadoop.hado op /opt;"; 
+}& done
+
+su - hadoop
+for((x=4;x<=6;x++));do {
+	ssh node$x.robin.com  "tar xfz /tmp/zookeeper-3.4.6.tar.gz -C /opt/";
+	ssh node$x.robin.com  "mv /opt/zookeeper{-3.4.6,}";
+	ssh node$x.robin.com  "cp /opt/zookeeper/conf/zoo{_sample,}.cfg";
+}& done
+
+node4-6:
+su - hadoop
+vim /opt/zookeeper/conf/zoo.cfg:
+dataDir=/opt/zookeeper/data
+server.1=node4.robin.com:2888:3888
+server.2=node5.robin.com:2888:3888
+server.3=node6.robin.com:2888:3888
+
+node4:
+mkdir /opt/zookeeper/data
+echo 1 > /opt/zookeeper/data/myid
+node5:
+mkdir /opt/zookeeper/data
+echo 2 > /opt/zookeeper/data/myid
+node6:
+mkdir /opt/zookeeper/data
+echo 3 > /opt/zookeeper/data/myid
+
+[hadoop@node4 ~]$ /opt/zookeeper/bin/zkServer.sh start
+JMX enabled by default
+Using config: /opt/zookeeper/bin/../conf/zoo.cfg
+Starting zookeeper ... STARTED
+[hadoop@node4 ~]$ /opt/zookeeper/bin/zkServer.sh status
+JMX enabled by default
+Using config: /opt/zookeeper/bin/../conf/zoo.cfg
+Mode: follower
+
+[hadoop@node5 opt]$ /opt/zookeeper/bin/zkServer.sh start
+JMX enabled by default
+Using config: /opt/zookeeper/bin/../conf/zoo.cfg
+Starting zookeeper ... STARTED
+[hadoop@node5 opt]$ /opt/zookeeper/bin/zkServer.sh status
+JMX enabled by default
+Using config: /opt/zookeeper/bin/../conf/zoo.cfg
+Mode: leader
+
+[hadoop@node6 ~]$ /opt/zookeeper/bin/zkServer.sh start
+JMX enabled by default
+Using config: /opt/zookeeper/bin/../conf/zoo.cfg
+Starting zookeeper ... STARTED
+[hadoop@node6 ~]$ /opt/zookeeper/bin/zkServer.sh status
+JMX enabled by default
+Using config: /opt/zookeeper/bin/../conf/zoo.cfg
+Mode: follower
+
+=======================================================================================================
+配置hadoop
+1、首先在node1主机上解压并配置hadoop
+[root@node1 ~]# chown -R hadoop.hadoop /opt
+[root@node1 ~]# su - hadoop
+[hadoop@node1 ~]$ tar xfz /tmp/hadoop-2.7.1.tar.gz -C /opt
+[hadoop@node1 ~]$ mv /opt/hadoop{-2.7.1,}
+[hadoop@node1 ~]$ ls /opt/hadoop/
+bin  include  libexec      NOTICE.txt  sbin
+etc  lib      LICENSE.txt  README.txt  share
+[hadoop@node1 ~]$ cd /opt/hadoop/etc/hadoop/ <需要修改的配置文件有以下几个>
+[hadoop@node1 hadoop]$ ls hadoop-env.sh hdfs-site.xml core-site.xml mapred-site.xml.template yarn-site.xml slaves 
+core-site.xml  hdfs-site.xml             slaves
+hadoop-env.sh  mapred-site.xml.template  yarn-site.xml
+
+[hadoop@node1 hadoop]$ vim hadoop-env.sh <在hadoop运行环境配置文件中指定JAVA_HOME的路径>
+[hadoop@node1 hadoop]$ grep "^export JAVA_HOME" hadoop-env.sh
+export JAVA_HOME=/usr/java/jdk1.7.0_45
+
+
+下面几个配置太长看hadoop2.7 cherrytree
+tail -17 core-site.xml
+tail -62 hdfs-site.xml
+
+cat slaves
+node4.robin.com
+node5.robin.com
+node6.robin.com
+
+cp mapred-site.xml{.template,}
+tail -7 mapred-site.xml
+tail -13 yarn-site.xml
+
+node2,node3:
+chown  -R hadoop.hadoop /opt/
+
+node1:
+su - hadoop
+for((x=2;x<=6;x++));do { 
+	scp -r /opt/hadoop hadoop@node$x.robin.com:/opt;
+}& done
+
+node4:
+/opt/hadoop/sbin/hadoop-daemons.sh start journalnode
+
+[hadoop@node4 ~]$ jps
+2677 Jps
+2637 JournalNode
+2240 QuorumPeerMain
+[hadoop@node4 ~]$
+
+[hadoop@node5 ~]$ jps
+26259 JournalNode
+26309 Jps
+2666 QuorumPeerMain
+[hadoop@node5 ~]$ 
+
+[hadoop@node6 ~]$ jps
+22717 JournalNode
+22766 Jps
+2199 QuorumPeerMain
+[hadoop@node6 ~]$ 
+
+
+=======================================================================================================
+=======================================================================================================
+格式化hadoop
+node1,node2:
+su - hadoop
+hadoop namenode -format
+ls /opt/hadoop/tmp/dfs/name/current/ 
+node2也要格式化
+
+=======================================================================================================
+=======================================================================================================
+格式化zookeeper:
+node1:
+su - hadoop
+hdfs zkfc -formatZK
+
+=======================================================================================================
+启动hdfs:
+node1:
+su - hadoop
+/opt/hadoop/sbin/start-dfs.sh
+
+
+node3:
+su - hadoop
+/opt/hadoop/sbin/start-yarn.sh
+
+
+宿主最后访问看到namenode 一个active 一个standby
+192.168.122.101:50070
+192.168.122.102:50070
+
+
+
+
+
+=======================================================================================================
+=======================================================================================================
+
+
+安装后开始启动顺序:
+node4-6:
+/opt/zookeeper/bin/zkServer.sh start
+
+node5:
+[root@node5 ~]# /opt/hadoop/sbin/hadoop-daemons.sh start journalnode
+node6.robin.com: starting journalnode, logging to
+/opt/hadoop/logs/hadoop-root-journalnode-node6.robin.com.o
+utnode5.robin.com: starting journalnode, logging to
+/opt/hadoop/logs/hadoop-root-journalnode-node5.robin.com.o
+utnode4.robin.com: starting journalnode, logging to
+/opt/hadoop/logs/hadoop-root-journalnode-node4.robin.com.o
+ut
+
+node4-6:
+jps:
+1236 QuorumPeerMain
+1349 Jps
+1300 JournalNode
+
+
+启动hdfs:
+node1:
+su - hadoop
+/opt/hadoop/sbin/start-dfs.sh
+
+
+node3:
+su - hadoop
+/opt/hadoop/sbin/start-yarn.sh
+
+
+宿主最后访问看到namenode 一个active 一个standby
+192.168.122.101:50070
+192.168.122.102:50070

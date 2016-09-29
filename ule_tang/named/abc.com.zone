@@ -1,0 +1,12 @@
+$TTL   86400
+@       IN     SOA     ns1.abc.com.	admin.abc.com. ( 
+					2016031501
+					1D
+					1H
+					1W
+					3H )
+@	IN 	NS	ns1.abc.com.
+ns1   	IN      NS      172.16.80.133
+www	IN	A	172.16.80.133
+ftp 	IN 	A 	172.16.80.133
+www1	IN	CNAME	www	

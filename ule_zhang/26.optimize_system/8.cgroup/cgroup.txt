@@ -1,0 +1,30 @@
+cgroup 可以控制cpu 内存 io等等
+http://my.oschina.net/cloudcoder/blog/424418?p=1
+------------------------------------------------
+例1 CPU:
+让一个本来跑100%1个cpu的程序,成为跑50%
+脚本:cpu.sh
+
+先用top看一下,1个cpu核心100%
+mkdir -p /cgroup/cpu/foo/
+cat /cgroup/cpu/foo/cpu.cfs_period_us
+100000
+
+#将cpu.cfs_quota_us设为50000，相对于cpu.cfs_period_us的100000是50%
+echo 50000 > /cgroup/cpu/foo/cpu.cfs_quota_us
+echo 27958 > /cgroup/cpu/foo/tasks
+再用top看一下,1个cpu核心50%
+------------------------------------------------
+例2 内存:
+脚本:mem.sh
+
+观察到内存消耗不断上涨
+watch -n1 'free -m'
+
+mkdir -p /cgroup/memory/foo
+#分配1MB的内存给这个控制组,1048576=1024x1024x1
+echo 1048576 >  /cgroup/memory/foo/memory.limit_in_bytes
+echo sh的pid > /cgroup/memory/foo/tasks
+
+sh脚本直接被杀,但我测试内存被控制到指定1M但没被杀死
+------------------------------------------------

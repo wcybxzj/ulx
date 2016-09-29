@@ -1,0 +1,234 @@
+﻿
+
+--------------------------------------
+交换分区扩大缩小
+[root@localhost ~]# swapon -s
+[root@localhost ~]# cat /proc/swaps 
+
+扩大交换分区
+1.分分区
+2.[root@localhost ~]# mkswap /dev/sda8
+3.[root@localhost ~]# 激活swap分区 swapon /dev/sda8
+4.修改磁盘分区的类型
+/etc/rc.local
+/etc/fstab
+
+通过文件扩大交换分区
+[root@localhost ~]# dd if=/dev/zero of=/swap bs=100M count=10
+[root@localhost ~]# mkswap /swap
+[root@localhost ~]# swapon /swap
+[root@localhost ~]# swapon -s
+
+缩小
+[root@localhost ~]# swapoff /swap
+
+--------------------------------------------------
+
+符号链接和硬连接
+创建方法
+[root@localhost ~]# ln -s /root/ruan.txt /root/桌面
+[root@localhost ~]# ln /root/ying.txt /root/桌面
+[root@localhost ~]# unlink /tmp/boot  删除链接
+相同点:链接文件和源文件内容相同
+不同点:
+1.创建参数不同
+2.软链接链接文件权限和源文件权限不同
+  硬连接链接文件权限和源文件权限相同
+3.软链接创建时必须写绝对路径(除了链接文件和源文件在同一目录下)
+  硬链接创建时可以相对可以绝对路径
+4.软链接的源文件不能删除或者重命名
+  硬连接的源文件可以删除或者重命名
+5.软链接的链接文件inode号和源文件不同
+  硬链接的链接文件inode号和源文件相同
+6.软链接可以对目录操作
+  硬连接不可以目录操作
+7.软链接可以跨文件系统
+  硬连接不可以跨文件系统
+
+
+
+系统启动过程及排错
+安装系统
+1.光盘-----光驱 优点:简单 方便 缺点:光盘,光驱容易损坏
+2.U盘,硬盘-----U口,u盘 有点:简单 限制小 缺点:只能同时给一个台服务器安装
+3.网络-------LAN 网络网络服务器 适合大批量的服务安装  速度
+
+进入系统
+1.bois------hard disk--------硬盘MBR(第一个扇区512字节 0磁道0扇区)
+2.512字节 446字节引导程序 64字节分区表 2字节 magic number
+[root@localhost ~]# dd if=/dev/sda of=MBR bs=512 count=1
+stage1------stage1.5------stage2
+3.读取grub配置文件grub.conf,找到系统内核和启动文件
+手动引导操作系统
+root (hd0,0)
+kernel /vmlinuz-2.6.32-358.el6.x86_64 ro root=/dev/sda2
+initrd /initramfs-2.6.32-358.el6.x86_64.img
+boot
+
+修复引导程序
+破坏引导程序[root@localhost ~]# dd if=/dev/zero of=/dev/sda bs=446 count=1
+进入光盘修复模式
+grub
+grub> root (hd0,0)
+grub> setup (hd0)
+grub> quit
+reboot
+
+grub加密
+[root@localhost ~]# grub-md5-crypt 
+Password: 
+Retype password: 
+$1$9pAZW$20S3QIC8GXROmsdwy0POh.
+
+[root@localhost ~]# vim /boot/grub/grub.conf
+password --md5 $1$9pAZW$20S3QIC8GXROmsdwy0POh.
+
+4.将内核,启动文件加载内存并释放,由内核启动第一个进程init
+5.启动init进程,读取init的配置文件
+/etc/inittab   设置系统的默认启动级别
+/etc/init/rcS.conf----/etc/rc.d/rc.sysinit 初始化系统文件
+/etc/init/rc.conf   运行对应运行级别的服务器脚本(脚本位置/etc/rc.d/init.d/)
+/etc/init/control-alt-delete.conf 声明ctrl+alt+delete键作用
+/etc/init/tty.conf  定义tty
+
+6.进入系统前最后一个执行脚本rc.local
+7.login登录
+8.加载图形资源
+9.login登录
+10.加载环境变量
+
+重启网卡
+[root@localhost ~]# vim /etc/sysconfig/network-scripts/ifcfg-eth0
+ONBOOT="yes"
+[root@localhost trouble-shoting]# service network restart
+
+ts4.sh
+1.引导程序
+2.grub.conf
+3.mount
+4.passwd
+5.inittab
+6.rc.locl
+7.tmp权限
+8.crond
+
+----------------------------------
+内核模块管理
+查询内核版本 
+[root@localhost 桌面]# uname -r
+2.6.32-358.el6.x86_64
+主版本号.次版本号.修订版本号.系统版本.平台
+次版本号奇数 测试版本
+次版本号偶数 发行版
+
+模块管理
+模块存储位置:/lib[64]/modules/内核版本
+[root@localhost 桌面]# lsmod  查询当前模块加载的状态
+[root@localhost 桌面]# modinfo ext4 查看模块信息
+[root@localhost ~]# rmmod iptable_filter 卸载模块
+[root@localhost ~]# insmod /lib/modules/2.6.32-358.el6.x86_64/kernel/net/ipv4/netfilter/iptable_filter.ko 加载模块
+[root@localhost ~]# modprobe iptable_filter 动态加载
+动态加载需要的文件:
+modules.dep    
+modules.dep.bin
+创建依赖文件:
+[root@localhost ~]# depmod -a
+
+修改内核参数
+[root@localhost ~]# echo 1 > /proc/sys/vm/drop_caches  释放内存
+1 buffer  2 cache  3 buffer和cache
+[root@localhost ~]# echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_all 修改ping回应的
+[root@localhost ~]# echo 1 > /proc/sys/net/ipv4/icmp_echo_ignore_broadcasts 是否相应广播
+[root@localhost ~]# echo 1 > /proc/sys/net/ipv4/ip_forward  是否开启路由转发功能
+
+配置文件
+[root@localhost ~]# vim /etc/sysctl.conf
+net.ipv4.ip_forward = 1
+net.ipv4.icmp_echo_ignore_all = 1
+[root@localhost ~]# sysctl -p
+
+编译新内核
+[root@localhost ftp]# tar -xvf linux-3.10.5.tar.xz -C /usr/local/src/
+[root@localhost linux-3.10.5]# vim /usr/local/src/linux-3.10.5/Documentation/devices.txt   设备文档
+[root@localhost ~]# mknod -m 660 /dev/sda7 b 8 7
+[root@localhost ~]# chown .disk /dev/sda7
+创建字符设备
+[root@localhost ~]# mknod -m 666 /dev/null c 1 3
+
+编译内核
+[root@localhost linux-3.10.5]# make menuconfig
+filesystem----DOS/FAT/NT filesystem---NTFS filesystem
+
+[root@localhost linux-3.10.5]# make  编译
+[root@localhost linux-3.10.5]# make modules_install  安装模块
+[root@localhost linux-3.10.5]# make install  安装内核
+
+ 
+网络管理
+
+[root@localhost ~]# ifconfig  查看网卡信息
+[root@localhost ~]# mii-tool eth0 查看网卡是否链接网线
+[root@localhost ~]# setup     设置ip
+[root@localhost ~]# service network restart 启动网卡
+[root@localhost ~]# ping 172.16.110.254
+[root@localhost ~]# ifdown eth0  取消激活
+[root@localhost ~]# ifup eth0    激活网卡
+
+
+
+网卡配置文件
+[root@localhost ~]# vim /etc/sysconfig/network-scripts/ifcfg-eth0
+DEVICE=eth0
+TYPE=Ethernet
+BOOTPROTO=none|static|dhcp  ------设置ip获取方式
+HWADDR=00:0c:29:5e:13:12
+NM_CONTROLLED=no     ----是否开启NetworkManager
+ONBOOT=yes|no  ----------网卡是否激活
+IPADDR=172.16.110.1
+NETMASK=255.255.255.0
+GATEWAY=172.16.110.254
+
+[root@localhost ~]# ifconfig eth0 1.1.1.1  临时改动ip地址
+[root@localhost ~]# ifconfig eth0:0 10.10.10.1 临时别名
+
+永久网卡别名
+[root@localhost ~]# cp /etc/sysconfig/network-scripts/ifcfg-eth0 /etc/sysconfig/network-scripts/ifcfg-eth0:0
+[root@localhost ~]# vim /etc/sysconfig/network-scripts/ifcfg-eth0:0
+DEVICE=eth0:0
+BOOTPROTO=none
+HWADDR=00:0c:29:5e:13:12
+NM_CONTROLLED=no
+ONBOOT=yes
+TYPE=Ethernet
+IPADDR=10.10.10.1
+NETMASK=255.255.255.0
+GATEWAY=10.10.10.1
+
+查看路由表
+[root@localhost ~]# route -n
+[root@localhost ~]# route del default gw 172.16.110.254
+[root@localhost ~]# route add default gw 172.16.110.254
+
+路由追踪
+[root@localhost ~]# traceroute 172.16.8.100
+
+查询arp缓冲表
+[root@localhost ~]# arp
+
+测试ip地址冲突
+[root@localhost ~]# arping 172.16.110.30
+
+ip命令
+[root@localhost ~]# ip add show
+
+主机名设置
+1.修改临时主机名
+[root@localhost ~]# hostname robin.com
+2.永久修改主机
+[root@localhost ~]# vim /etc/sysconfig/network
+NETWORKING=yes
+HOSTNAME=robin.com
+3.解析主机名
+[root@localhost ~]# vim /etc/hosts
+172.16.110.1    robin.com
+
