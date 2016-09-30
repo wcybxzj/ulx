@@ -61,7 +61,7 @@ size=300M features='0' hwhandler='0' wp=rw
   `- 2:0:0:1 sdb 8:16  active ready running
 这种模式是主备模式,
 status是active的是正在运行的线路
-status是enabled的是正在运行的线路
+status是enabled的是可用的备用线路
 ==================================================================================
 测试1:对挂载分区写入，tcpdump查看是否是一个网卡在工作
 web9:
