@@ -1,4 +1,0 @@
-this is a test
-tom is boy
-jim is car
-hello
