@@ -1,0 +1,6 @@
+apple banana	egg
+一. apple banana egg
+apple.Banana	kind egg
+apple. Banana	egg
+apple? Banana    egg
+apple? Banana    egg

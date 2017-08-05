@@ -1,0 +1,7 @@
+acc
+a.c
+abc
+a2c
+a6c
+a7c
+a8c

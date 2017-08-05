@@ -1,0 +1,12 @@
+#!/usr/bin/expect
+set timeout 5
+spawn fdisk /dev/sda
+expect "help):"
+send "n\r"
+expect "):"
+send "\r"
+expect "):"
+send "+100M\r"
+expect "):"
+send "w\r"
+expect eof

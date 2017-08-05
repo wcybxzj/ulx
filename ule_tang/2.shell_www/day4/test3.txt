@@ -1,0 +1,7 @@
+.TS
+Beijing,CN
+.TE
+Shanghai,CN
+
+guangzhou,CN
+shenyang,CN
