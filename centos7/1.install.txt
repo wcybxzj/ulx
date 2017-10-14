@@ -1,0 +1,26 @@
+1.防火墙
+systemctl disable firewalld
+
+2.selinux
+临时关闭SELinux
+setenforce 0
+
+vim /etc/selinux/config 里设置成disabled
+
+3.vm里装了centos7网络不能用
+
+cat /etc/sysconfig/network-scripts/ifcfg-eno16777736
+DEVICE=eno16777736
+TYPE=Ethernet
+ONBOOT=yes
+BOOTPROTO=dhcp
+DEFROUTE=yes
+PEERDNS=yes
+PEERROUTES=yes
+
+systemctl stop NetworkManager
+systemctl disable NetworkManager
+systemctl start network
+
+
+
