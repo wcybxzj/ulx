@@ -8,19 +8,32 @@ setenforce 0
 vim /etc/selinux/config 里设置成disabled
 
 3.vm里装了centos7网络不能用
-
-cat /etc/sysconfig/network-scripts/ifcfg-eno16777736
-DEVICE=eno16777736
+cat /etc/sysconfig/network-scripts/ifcfg-eno33
 TYPE=Ethernet
-ONBOOT=yes
 BOOTPROTO=dhcp
-DEFROUTE=yes
-PEERDNS=yes
-PEERROUTES=yes
+IPADDR=192.168.91.15
+PREFIX=24
+NAME=ens33
+UUID=52c4d05f-1920-4b34-a455-130a964bc541
+DEVICE=ens33
+ONBOOT=yes
 
 systemctl stop NetworkManager
 systemctl disable NetworkManager
 systemctl start network
 
+4.yum:
+mount -t iso9660 -o loop /usr/local/src/CentOS-7-x86_64-DVD-1804.iso /mnt
 
+vim /etc/yum.repos.d/local.repo
+[local]
+name=local
+gpgcheck=0
+enabled=1
+baseurl=file:///mnt
 
+yum makecache
+
+5.fstab:
+vim /stc/fstab
+/usr/local/src/CentOS-7-x86_64-DVD-1804.iso /mnt	  	iso9660	  defaults,ro	  0 0
