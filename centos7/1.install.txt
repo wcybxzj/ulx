@@ -37,3 +37,4 @@ yum makecache
 5.fstab:
 vim /stc/fstab
 /usr/local/src/CentOS-7-x86_64-DVD-1804.iso /mnt	  	iso9660	  defaults,ro	  0 0
+
