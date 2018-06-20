@@ -1,0 +1,4 @@
+docker pull registry.docker-cn.com/library/nginx
+
+docker container run -d -p 192.168.24.3:8080:80 --rm --name mynginx nginx
+

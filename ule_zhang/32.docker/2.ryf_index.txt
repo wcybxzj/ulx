@@ -1,0 +1,3 @@
+docker-compose安装:
+pip install requests==2.18.4
+pip install docker-compose --ignore-installed requests

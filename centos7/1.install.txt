@@ -10,7 +10,7 @@ vim /etc/selinux/config 里设置成disabled
 3.vm里装了centos7网络不能用
 cat /etc/sysconfig/network-scripts/ifcfg-eno33
 TYPE=Ethernet
-BOOTPROTO=dhcp
+BOOTPROTO=static
 IPADDR=192.168.91.15
 PREFIX=24
 NAME=ens33
