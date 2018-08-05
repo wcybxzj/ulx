@@ -27,7 +27,7 @@ systemctl start network
 nmcli con show
 
 5.yum:
-mount -t iso9660 -o loop /usr/local/src/CentOS-7-x86_64-DVD-1804.iso /mnt
+mount -t iso9660 -o loop /root/soft/CentOS-7-x86_64-DVD-1804.iso /mnt
 
 vim /etc/yum.repos.d/local.repo
 [local]
@@ -40,5 +40,5 @@ yum makecache
 
 6.fstab:
 vim /stc/fstab
-/usr/local/src/CentOS-7-x86_64-DVD-1804.iso /mnt	  	iso9660	  defaults,ro	  0 0
+/root/soft/CentOS-7-x86_64-DVD-1804.iso /mnt	  	iso9660	  defaults,ro	  0 0
 

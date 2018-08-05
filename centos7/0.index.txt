@@ -1,0 +1,17 @@
+1.U盘安装系统
+
+2.go to findrpm download fuse-ntfs-3g
+
+3.git clone gist and ulx
+
+4.yum local.repo
+
+5.VMware Workstation Pro 14 序列号：
+AA702-81D8N-0817Y-75PQT-Q70A4
+YC592-8VF55-M81AZ-FWW5T-WVRV0
+FC78K-FKED6-H88LZ-0QPEE-QP8X6
+UV1H2-AKWD2-H8EJZ-GGMEE-PCATD
+AC310-0VG0P-M88CQ-YWY5Z-QPRG0
+
+6.go/vim/idea/lnmp/windows
+
