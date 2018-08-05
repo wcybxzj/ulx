@@ -22,7 +22,11 @@ systemctl stop NetworkManager
 systemctl disable NetworkManager
 systemctl start network
 
-4.yum:
+
+4.获取网卡的uuid
+nmcli con show
+
+5.yum:
 mount -t iso9660 -o loop /usr/local/src/CentOS-7-x86_64-DVD-1804.iso /mnt
 
 vim /etc/yum.repos.d/local.repo
@@ -34,7 +38,7 @@ baseurl=file:///mnt
 
 yum makecache
 
-5.fstab:
+6.fstab:
 vim /stc/fstab
 /usr/local/src/CentOS-7-x86_64-DVD-1804.iso /mnt	  	iso9660	  defaults,ro	  0 0
 
