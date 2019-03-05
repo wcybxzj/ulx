@@ -45,15 +45,6 @@ server{
 ===============================================================================
 192.168.1.110:nginx.conf
 
-server
-{
-   listen 80;
-   server_name c110.com;
-   location / {
-           root /root/www2;
-           index index.html;
-   }
-}
 
 server
 {
@@ -61,6 +52,16 @@ server
    server_name _;
    location / {
            root /root/www;
+           index index.html;
+   }
+}
+
+server
+{
+   listen 80;
+   server_name c110.com;
+   location / {
+           root /root/www2;
            index index.html;
    }
 }
@@ -73,11 +74,13 @@ chrome抓包:有2条记录a109.com--302跳转-->192.168.1.110
 实验2:
 windows访问:b109.com
 chrome抓包:只有1条记录b109.com
+读取的内容是110默认的域名中的信息 /root/www
 说明109是从110读取数据返回给windows的
 ================================================================================
 实验3:
 windows访问:c109.com
 chrome抓包:只有1条记录b109.com
+读取的内容是110 的c110.com域名中的信息 /root/www2
 说明:从内容上看访问的是110的 c110.com,
 109反向代理中的下面的配置起作用了
 proxy_set_header   Host c110.com;
