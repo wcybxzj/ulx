@@ -1,0 +1,7 @@
+#!/usr/bin/expect -f  
+#ln -s  /root/www/ulx/ybx_shell/login /usr/bin/login
+set ip [lindex $argv 0 ]
+spawn ssh $ip
+expect "Enter passphrase for key '/root/.ssh/id_nqyrelease': "  
+send "Nqy201610\r"   
+interact
