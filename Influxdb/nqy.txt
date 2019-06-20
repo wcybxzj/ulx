@@ -1,0 +1,179 @@
+use prometheus
+show measurements
+
+cpu使用率:
+
+count(count(node_cpu{instance=~"172.18.124.153:9100"}) by (cpu))
+
+
+
+select * from node_cpu where job = 'nqy4c155-node' limit 60;
+select sum(value) from node_cpu where job = 'nqy4c155-node' and mode = 'idle' group by time(60s) limit 10;
+
+select sum(value) from node_cpu where job = 'nqy4c155-node' group by mode, time(60s) limit 10;
+
+select sum(value) / (select sum(value) from node_cpu where job = 'nqy4c155-node' group by time(60s) limit 10)  from node_cpu where job = 'nqy4c155-node' and mode = 'idle' group by time(60s) limit 10;
+
+
+select  - idle from node_cpu where job = 'nqy4c155-node' group by mode, time(60s) limit 10;
+select * from (select sum(value) from node_cpu where job = 'nqy4c155-node' and mode = 'idle' group by time(60s) / select sum(value) from node_cpu where job = 'nqy4c155-node' group by mode, time(60s))
+
+
+SELECT 100 - usage_idel FROM "autogen"."cpu" WHERE time > now() - 1m and "cpu"='cpu0' limit 1
+
+
+=======================================================================================================
+内存:
+use prometheus
+select (value/1024/1024) from node_memory_MemTotal
+
+select (value) from node_memory_MemTotal
+select ("value" / 1024) from node_memory_MemTotal limit 100
+select "job", ("value" / 1024 / 1024 ) from node_memory_MemTotal  limit 30
+
+3974848512/1024/1024
+
+select "job", ("value" / 1024 / 1024) from node_memory_MemTotal where job ='nqy8c151-node' limit 30
+select "job", ("value" / 1024 / 1024 ) from node_memory_MemFree where job ='nqy8c151-node'  limit 30
+select "job", ("value" / 1024 / 1024 ) from node_memory_MemAvailable job ='nqy8c151-node' limit 30
+select ("value" / 1024 / 1024 )  from  node_memory_Mapped where job = 'nqy8c151-node' limit 30
+
+
+select ("value" / 1024 / 1024 )* 100  from  node_memory_MemAvailable where job = 'nqy8c151-node'
+
+select ("value" / 1024 / 1024 )/16384 * 100  from  node_memory_MemAvailable where job = 'nqy8c151-node' GROUP BY time(10s) limit 100
+
+select ("value" / 1024 / 1024 )/16384 * 100  from  node_memory_MemAvailable where job = 'nqy8c151-node'
+
+
+select 100 - ("value" / 1024 / 1024)/4096 *  100  from  node_memory_MemAvailable where job = 'nqy2c150-node'
+select 100 - ("value" / 1024 / 1024)/16384 * 100  from  node_memory_MemAvailable where job = 'nqy8c151-node'
+select 100 - ("value" / 1024 / 1024)/16384 * 100  from  node_memory_MemAvailable where job = 'nqy8c152-node'
+select 100 - ("value" / 1024 / 1024)/8192 * 100  from  node_memory_MemAvailable where job = 'nqy4c153-node'
+select 100 - ("value" / 1024 / 1024)/8192 * 100  from  node_memory_MemAvailable where job = 'nqy4c154-node'
+select 100 - ("value" / 1024 / 1024)/8192 * 100  from  node_memory_MemAvailable where job = 'nqy4c155-node'
+select 100 - ("value" / 1024 / 1024)/8192 * 100  from  node_memory_MemAvailable where job = 'nqy4c156-node'
+select 100 - ("value" / 1024 / 1024)/8192 * 100  from  node_memory_MemAvailable where job = 'nqy4c157-node'
+select 100 - ("value" / 1024 / 1024)/8192 * 100  from  node_memory_MemAvailable where job = 'nqy2c158-node'
+select 100 - ("value" / 1024 / 1024)/8192 * 100  from  node_memory_MemAvailable where job = 'nqy2c159-node'
+select 100 - ("value" / 1024 / 1024)/16384 * 100  from  node_memory_MemAvailable where job = 'nqy4c160-node'
+select 100 - ("value" / 1024 / 1024)/8192* 100  from  node_memory_MemAvailable where job = 'nqy4c161-node'
+
+
+=======================================================================================================
+负载:
+use prometheus
+select * from node_load5 limit 50;
+name: node_load5
+time                __name__   instance            job           monitor    value
+----                --------   --------            ---           -------    -----
+1560397500042000000 node_load5 172.18.124.155:9100 nqy4c155-node my-monitor 0.1
+1560397501634000000 node_load5 172.18.124.150:9100 nqy2c150-node my-monitor 0.18
+1560397501980000000 node_load5 172.18.124.160:9100 nqy4c160-node my-monitor 2.49
+1560397505813000000 node_load5 172.18.124.157:9100 nqy4c157-node my-monitor 0.06
+
+select count("value")  from  node_load5 where job = 'nqy4c153-node';
+select ("value")  from  node_load5 where job = 'nqy4c153-node'  limit 1;
+
+select count("value")  from  node_load5 where job = 'nqy2c150-node';
+select "value"  from  node_load5 where job = 'nqy4c161-node' limit 100;
+
+select ("value") from  node_load5 where job = 'nqy2c150-node';
+select ("value") from  node_load5 where job = 'nqy8c151-node';
+select ("value") from  node_load5 where job = 'nqy8c152-node';
+select ("value") from  node_load5 where job = 'nqy4c153-node';
+select ("value") from  node_load5 where job = 'nqy4c154-node';
+select ("value") from  node_load5 where job = 'nqy4c155-node';
+select ("value") from  node_load5 where job = 'nqy4c156-node';
+select ("value") from  node_load5 where job = 'nqy4c157-node';
+select ("value") from  node_load5 where job = 'nqy2c158-node';
+select ("value") from  node_load5 where job = 'nqy2c159-node';
+select ("value") from  node_load5 where job = 'nqy4c160-node';
+select ("value") from  node_load5 where job = 'nqy4c161-node';
+
+=======================================================================================================
+硬盘
+use prometheus
+node_filesystem_avail
+node_filesystem_device_error
+node_filesystem_files
+node_filesystem_files_free
+node_filesystem_free
+node_filesystem_readonly
+node_filesystem_size
+
+select * from node_filesystem_avail          where fstype = 'rootfs' limit 50
+select * from node_filesystem_device_error   where fstype = 'rootfs' limit 50
+select * from node_filesystem_files          where fstype = 'rootfs' limit 50
+select * from node_filesystem_files_free     where fstype = 'rootfs' limit 50
+select * from node_filesystem_free           where fstype = 'rootfs' limit 50
+select * from node_filesystem_readonly       where fstype = 'rootfs' limit 50
+select * from node_filesystem_size           where fstype = 'rootfs' limit 50
+select * from node_filesystem_free           where fstype = 'rootfs' limit 50
+
+select 100 -(value)/1024/1024/1024/40*100 from node_filesystem_free  where fstype = 'rootfs' and job = 'nqy2c150-node'
+select 100 -(value)/1024/1024/1024/40*100 from node_filesystem_free  where fstype = 'rootfs' and job = 'nqy8c151-node'
+select 100 -(value)/1024/1024/1024/40*100 from node_filesystem_free  where fstype = 'rootfs' and job = 'nqy8c152-node'
+select 100 -(value)/1024/1024/1024/40*100 from node_filesystem_free  where fstype = 'rootfs' and job = 'nqy4c153-node'
+select 100 -(value)/1024/1024/1024/40*100 from node_filesystem_free  where fstype = 'rootfs' and job = 'nqy4c154-node'
+select 100 -(value)/1024/1024/1024/40*100 from node_filesystem_free  where fstype = 'rootfs' and job = 'nqy4c155-node'
+select 100 -(value)/1024/1024/1024/40*100 from node_filesystem_free  where fstype = 'rootfs' and job = 'nqy4c156-node'
+select 100 -(value)/1024/1024/1024/40*100 from node_filesystem_free  where fstype = 'rootfs' and job = 'nqy4c157-node'
+select 100 -(value)/1024/1024/1024/40*100 from node_filesystem_free  where fstype = 'rootfs' and job = 'nqy2c158-node'
+select 100 -(value)/1024/1024/1024/40*100 from node_filesystem_free  where fstype = 'rootfs' and job = 'nqy2c159-node'
+select 100 -(value)/1024/1024/1024/40*100 from node_filesystem_free  where fstype = 'rootfs' and job = 'nqy4c160-node'
+select 100 -(value)/1024/1024/1024/40*100 from node_filesystem_free  where fstype = 'rootfs' and job = 'nqy4c161-node'
+
+select * from node_filesystem_free   limit 50
+
+
+mountpoint='/rootfs/data'
+
+
+select 100 -(value)/1024/1024/1024/200*100 from node_filesystem_free  where mountpoint = '/rootfs/data' and job = 'nqy2c150-node'
+select 100 -(value)/1024/1024/1024/200*100 from node_filesystem_free  where mountpoint = '/rootfs/data' and job = 'nqy8c151-node'
+select 100 -(value)/1024/1024/1024/200*100 from node_filesystem_free  where mountpoint = '/rootfs/data' and job = 'nqy8c152-node'
+select 100 -(value)/1024/1024/1024/500*100 from node_filesystem_free  where mountpoint = '/rootfs/data' and job = 'nqy4c153-node'
+select 100 -(value)/1024/1024/1024/100*100 from node_filesystem_free  where mountpoint = '/rootfs/data' and job = 'nqy4c154-node'
+select 100 -(value)/1024/1024/1024/100*100 from node_filesystem_free  where mountpoint = '/rootfs/data' and job = 'nqy4c155-node'
+select 100 -(value)/1024/1024/1024/100*100 from node_filesystem_free  where mountpoint = '/rootfs/data' and job = 'nqy4c156-node'
+select 100 -(value)/1024/1024/1024/100*100 from node_filesystem_free  where mountpoint = '/rootfs/data' and job = 'nqy4c157-node'
+select 100 -(value)/1024/1024/1024/100*100 from node_filesystem_free  where mountpoint = '/rootfs/data' and job = 'nqy2c158-node'
+select 100 -(value)/1024/1024/1024/100*100 from node_filesystem_free  where mountpoint = '/rootfs/data' and job = 'nqy2c159-node'
+select 100 -(value)/1024/1024/1024/100*100 from node_filesystem_free  where mountpoint = '/rootfs/data' and job = 'nqy4c160-node'
+select 100 -(value)/1024/1024/1024/100*100 from node_filesystem_free  where mountpoint = '/rootfs/data' and job = 'nqy4c161-node'
+
+
+=======================================================================================================
+fpm
+use prometheus
+select * from phpfpm_accepted_connections_total         limit 50
+select * from phpfpm_active_max_processes               limit 50
+
+select value from phpfpm_accepted_connections_total where job = 'nqy4c154-php'
+select value from phpfpm_accepted_connections_total where job = 'nqy4c155-php'
+select value from phpfpm_accepted_connections_total where job = 'nqy4c156-php'
+select value from phpfpm_accepted_connections_total where job = 'nqy4c157-php'
+select value from phpfpm_accepted_connections_total where job = 'nqy2c158-php'
+select value from phpfpm_accepted_connections_total where job = 'nqy2c159-php'
+
+
+select value from phpfpm_active_max_processes  where job = 'nqy4c154-php'
+select value from phpfpm_active_max_processes  where job = 'nqy4c155-php'
+select value from phpfpm_active_max_processes  where job = 'nqy4c156-php'
+select value from phpfpm_active_max_processes  where job = 'nqy4c157-php'
+select value from phpfpm_active_max_processes  where job = 'nqy2c158-php'
+select value from phpfpm_active_max_processes  where job = 'nqy2c159-php'
+
+
+
+select DERIVATIVE(value) from phpfpm_accepted_connections_total where job = 'nqy4c154-php' group by time(1m), job limit 1000
+
+SELECT SUM("water_level_derivative") AS "sum_derivative" FROM (
+	SELECT DERIVATIVE(MEAN("water_level")) AS "water_level_derivative"
+		 FROM "h2o_feet"
+         WHERE time >= '2015-08-18T00:00:00Z' AND time <= '2015-08-18T00:30:00Z' GROUP BY time(12m),"location"
+) GROUP BY "location"
+
+=======================================================================================================
+=======================================================================================================

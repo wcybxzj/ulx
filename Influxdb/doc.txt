@@ -1,0 +1,35 @@
+1.基础
+influx -precision rfc3339
+exit
+CREATE DATABASE mydb
+SHOW DATABASES
+USE mydb
+
+INSERT cpu,host=serverA,region=us_west value=0.64
+INSERT payment,device=mobile,product=Notepad,method=credit billed=33,licenses=3i 1434067467100293230
+INSERT stock,symbol=AAPL bid=127.46,ask=127.48
+INSERT temperature,machine=unit42,type=assembly external=25,internal=37 1434067467000000000
+=====================================================================================================
+2.查询
+apt install influxdb-client
+influx -precision rfc3339
+CREATE DATABASE NOAA_water_database
+
+curl https://s3.amazonaws.com/noaa.water-database/NOAA_data.txt -o NOAA_data.txt
+influx -import -path=NOAA_data.txt -precision=s -database=NOAA_water_database
+
+influx -precision rfc3339
+
+use NOAA_water_database
+
+SHOW measurements
+
+Count the number of non-null values of water_level in h2o_feet:
+> SELECT COUNT("water_level") FROM h2o_feet
+name: h2o_feet
+--------------
+17:35               count
+1970-01-01T00:00:00Z 15258			
+=====================================================================================================
+=====================================================================================================
+=====================================================================================================

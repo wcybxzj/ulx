@@ -1,0 +1,124 @@
+influxdb配置
+/etc/influxdb/influxdb.conf
+
+influxdb http端口 8086 
+
+登录到infk1
+docker exec -it database_influxdb_1 sh
+
+influx -precision rfc3339
+exit
+
+show databases
+create database shijiange
+drop database shijiange
+
+use shijiange
+
+//show tables
+show measurements  
+insert cpuinfo,item=shijiange_47.105.99.75_cpu.idle value=90
+
+select * from cpuinfo
+name: cpuinfo
+time                item                            value
+----                ----                            -----
+1560743351059494201 shijiange_47.105.99.75_cpu.idle 90
+
+drop measurement cpuinfo
+
+
+influxdb常用查询操作
+select * from cpuinfo
+
+#如果数据量太大，得使用limit，限制输出多少行
+select * from cpuinfo limit 2
+
+delete from cpuinfo where time=1560743351059494201
+
+influxdb数据保留时间设置
+SHOW RETENTION POLICIES ON shijiange
+
+#数据要保留一个月
+CREATE RETENTION POLICY rp_shijiange ON shijiange DURATION 30d REPLICATION 1 DEFAULT
+
+SHOW RETENTION POLICIES ON shijiange
+alter RETENTION POLICY rp_shijiange ON shijiange DURATION 90d REPLICATION 1 DEFAULT
+DROP RETENTION POLICY rp_shijiange on shijiange #删除保存时间和策略，一般来说是不删除
+
+influxdb使用易看的时间格式
+influx
+precision rfc3339
+select * from cpuinfo;
+
+=====================================================================
+IfluxDB自带的函数查询
+use shijiange
+SELECT COUNT(value) FROM cpuinfo
+insert cpuinfo,item=shijiange_47.105.99.75_cpu.idle value666=90
+SELECT COUNT(value) FROM cpuinfo
+
+查询唯一值
+SELECT DISTINCT(value) FROM cpuinfo
+
+查询平均值
+SELECT MEAN(value) FROM cpuinfo
+
+查询总和
+SELECT SUM(value) FROM cpuinfo
+
+查询最大的N个值
+SELECT TOP(value, 3) FROM cpuinfo
+
+查询最小的N个值
+SELECT BOTTOM(value, 3) FROM cpuinfo
+
+=====================================================================
+influxdb绘图基础
+use shijiange
+insert cpuinfo,item=shijiange_x.x.x.x_cpu.idle value=90
+创建Graph Panel(值为整形、浮点数的可以创建图形)
+=====================================================================
+insert disk_free,hostname=server01 value=442221834240i
+其中 disk_free 就是表名，hostname是索引（tag），value=xx是记录值（field），记录值可以有多个，系统自带追加时间戳
+
+或者添加数据时，自己写入时间戳
+insert disk_free,hostname=server01 value=442221834240i 1435362189575692182
+
+=====================================================================
+=====================================================================
+=====================================================================
+=====================================================================
+=====================================================================
+=====================================================================
+=====================================================================
+use prometheus
+select * from node_cpu limit 50
+time                __name__ cpu  instance            job           mode       monitor    value
+----                -------- ---  --------            ---           ----       -------    -----
+1560397500042000000 node_cpu cpu0 172.18.124.155:9100 nqy4c155-node guest      my-monitor 0
+1560397500042000000 node_cpu cpu0 172.18.124.155:9100 nqy4c155-node guest_nice my-monitor 0
+1560397500042000000 node_cpu cpu0 172.18.124.155:9100 nqy4c155-node idle       my-monitor 30359634.54
+1560397500042000000 node_cpu cpu0 172.18.124.155:9100 nqy4c155-node iowait     my-monitor 46988.31
+1560397500042000000 node_cpu cpu0 172.18.124.155:9100 nqy4c155-node irq        my-monitor 0
+1560397500042000000 node_cpu cpu0 172.18.124.155:9100 nqy4c155-node nice       my-monitor 565.47
+1560397500042000000 node_cpu cpu0 172.18.124.155:9100 nqy4c155-node softirq    my-monitor 43892.56
+1560397500042000000 node_cpu cpu0 172.18.124.155:9100 nqy4c155-node steal      my-monitor 0
+
+
+
+ SELECT SUM("water_level_derivative") AS "sum_derivative" FROM (
+		 SELECT DERIVATIVE(MEAN("water_level")) AS "water_level_derivative" 
+		 FROM "h2o_feet"
+		 WHERE time >= '2015-08-18T00:00:00Z' AND time <= '2015-08-18T00:30:00Z'
+		 GROUP BY time(12m),
+		 "location"
+ ) GROUP BY "location"
+
+SELECT DERIVATIVE(MEAN("water_level")) AS "water_level_derivative" FROM "h2o_feet" WHERE time >= '2015-08-18T00:00:00Z' AND time <= '2015-08-18T00:30:00Z' GROUP BY time(12m)
+SELECT MEAN("water_level") AS "abc" FROM "h2o_feet" WHERE time >= '2015-08-18T00:00:00Z' AND time <= '2015-08-18T00:30:00Z' GROUP BY time(12m)
+SELECT MEAN("water_level") FROM "h2o_feet" WHERE time >= '2015-08-18T00:00:00Z' AND time <= '2015-08-18T00:30:00Z' GROUP BY time(12m)
+
+
+SELECT SUM("water_level_derivative") AS "sum_derivative" FROM (SELECT DERIVATIVE(MEAN("water_level")) AS "water_level_derivative" FROM "h2o_feet" WHERE time >= '2015-08-18T00:00:00Z' AND time <= '2015-08-18T00:30:00Z' GROUP BY time(12m),"location") GROUP BY "location"
+SELECT SUM("abc") AS "sum_derivative" FROM (SELECT MEAN("water_level") AS "abc" FROM "h2o_feet" WHERE time >= '2015-08-18T00:00:00Z' AND time <= '2015-08-18T00:30:00Z' GROUP BY time(12m),"location") GROUP BY "location"
